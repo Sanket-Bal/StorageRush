@@ -1,0 +1,50 @@
+08-01 16:20:49.395  3553  6048 I NearbyDiscovery: (REDACTED) BloomFilterAdvManager: Detected bloom filter but too far away, ignoring. %sm, %s
+08-01 16:20:49.465  3553  6048 I NearbyDiscovery: (REDACTED) BloomFilterAdvManager: Detected bloom filter but too far away, ignoring. %sm, %s
+08-01 16:20:49.652  1370  4342 D vendor.qti.bluetooth@1.0-wake_lock: Release wakelock is released 
+08-01 16:20:50.069  1370  4500 D vendor.qti.bluetooth@1.0-wake_lock: Acquire wakelock is acquired 
+08-01 16:20:50.064     0     0 W [    C6] ALERT: changing window size from 8000000 to 20000000 at 7545732042797
+08-01 16:20:50.115  2312  2911 D ActivityManager: freezing 19624 com.whatsapp.w4b
+08-01 16:20:50.120  2312  3002 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+08-01 16:20:50.120  2312  3002 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+08-01 16:20:50.120  2312  3002 D InetDiagMessage: Destroyed live tcp sockets for uids={10236} in 1ms
+08-01 16:20:50.126  3553  6048 I NearbyDiscovery: (REDACTED) BloomFilterAdvManager: Detected bloom filter but too far away, ignoring. %sm, %s
+08-01 16:20:50.186  3553  6048 I NearbyDiscovery: (REDACTED) BloomFilterAdvManager: Detected bloom filter but too far away, ignoring. %sm, %s
+08-01 16:20:50.376  1370  4342 D vendor.qti.bluetooth@1.0-wake_lock: Release wakelock is released 
+08-01 16:20:50.494  5101  5879 I BugleRcsEngine: handleMessage processing message:[NOTIFY_UPTIME_IGNORE_STATE_CHANGED] with [non-null]:RcsEngineImpl reference [CONTEXT log_prefix="RcsEngineImpl[DUAL_REG]:[f753dc9a-3989]>Handler" thread_id=64 ]
+08-01 16:20:50.495  5101  5612 I BugleRcsEngine: Connected state: [1], networkType: [WIFI] [CONTEXT thread_id=60 ]
+08-01 16:20:50.500  2312  3002 D ConnectivityService: NetReassign [no changes] [c 0] [a 2] [i 1]
+08-01 16:20:50.503  3553 20596 I NearbyMediums: Wifi changed new SSID: "SOA BH-05"
+08-01 16:20:50.503  3553 20596 I NearbyMediums: WifiLanConnectivityInfo is not changed, skip notify.
+08-01 16:20:50.503  3553  3566 I NullBinder: NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+08-01 16:20:50.503  3553  3566 W .gms.persistent: Large reply transaction of 2097152 bytes, interface descriptor , code 1
+08-01 16:20:50.506  3553  3566 I NullBinder: NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+08-01 16:20:50.506  3553  3566 W .gms.persistent: Large reply transaction of 2097152 bytes, interface descriptor , code 1
+08-01 16:20:50.868  1370  4500 D vendor.qti.bluetooth@1.0-wake_lock: Acquire wakelock is acquired 
+08-01 16:20:50.999  3553 20510 I NearbySharing: Network state changed: NetworkState(isRestricted=false, isOnline=true, isCongested=false, isMetered=false, isWifiConnected=true)
+08-01 16:20:51.000  3553 20596 I NearbySharing: Network state changed: NetworkState(isRestricted=false, isOnline=true, isCongested=false, isMetered=false, isWifiConnected=true)
+08-01 16:20:51.063  1370  4342 D vendor.qti.bluetooth@1.0-wake_lock: Release wakelock is released 
+08-01 16:20:51.684  1370  4500 D vendor.qti.bluetooth@1.0-wake_lock: Acquire wakelock is acquired 
+08-01 16:20:51.687  3553  6048 I NearbyDiscovery: (REDACTED) BloomFilterAdvManager: Detected bloom filter but too far away, ignoring. %sm, %s
+08-01 16:20:51.878  1370  4342 D vendor.qti.bluetooth@1.0-wake_lock: Release wakelock is released 
+08-01 16:20:52.344  1370  4500 D vendor.qti.bluetooth@1.0-wake_lock: Acquire wakelock is acquired 
+08-01 16:20:52.348  3553  6048 I NearbyDiscovery: (REDACTED) BloomFilterAdvManager: Detected bloom filter but too far away, ignoring. %sm, %s
+08-01 16:20:52.348  3553  6048 I NearbyDiscovery: (REDACTED) BloomFilterAdvManager: Detected bloom filter but too far away, ignoring. %sm, %s
+08-01 16:20:52.539  1370  4342 D vendor.qti.bluetooth@1.0-wake_lock: Release wakelock is released 
+08-01 16:20:53.008  1370  4500 D vendor.qti.bluetooth@1.0-wake_lock: Acquire wakelock is acquired 
+08-01 16:20:53.011  3553  6048 I NearbyDiscovery: (REDACTED) BloomFilterAdvManager: Detected bloom filter but too far away, ignoring. %sm, %s
+08-01 16:20:53.156  3553  6048 I NearbyDiscovery: (REDACTED) BloomFilterAdvManager: Detected bloom filter but too far away, ignoring. %sm, %s
+08-01 16:20:53.347  1370  4342 D vendor.qti.bluetooth@1.0-wake_lock: Release wakelock is released 
+08-01 16:20:53.676  1370  4500 D vendor.qti.bluetooth@1.0-wake_lock: Acquire wakelock is acquired 
+08-01 16:20:53.680  3553  6048 I NearbyDiscovery: (REDACTED) BloomFilterAdvManager: Detected bloom filter but too far away, ignoring. %sm, %s
+08-01 16:20:53.679  4221  4221 E simulated_ntc: proc_shell_write write invalid para
+08-01 16:20:53.751  1945  1963 I android.hardware.thermal@2.0-service.qti: uevent triggered for sensor: quiet-therm-usr
+08-01 16:20:53.752  1945  1963 I android.hardware.thermal@2.0-service.qti: uevent triggered for sensor: quiet-therm-usr
+08-01 16:20:53.817  3553  6048 I NearbyDiscovery: (REDACTED) BloomFilterAdvManager: Detected bloom filter but too far away, ignoring. %sm, %s
+08-01 16:20:54.006  1370  4342 D vendor.qti.bluetooth@1.0-wake_lock: Release wakelock is released 
+08-01 16:20:54.498  1370  4500 D vendor.qti.bluetooth@1.0-wake_lock: Acquire wakelock is acquired 
+08-01 16:20:54.504  3553  6048 I NearbyDiscovery: (REDACTED) BloomFilterAdvManager: Detected bloom filter but too far away, ignoring. %sm, %s
+08-01 16:20:54.693  1370  4342 D vendor.qti.bluetooth@1.0-wake_lock: Release wakelock is released 
+08-01 16:20:55.172  1370  4500 D vendor.qti.bluetooth@1.0-wake_lock: Acquire wakelock is acquired 
+08-01 16:20:55.175  3553  6048 I NearbyDiscovery: (REDACTED) BloomFilterAdvManager: Detected bloom filter but too far away, ignoring. %sm, %s
+08-01 16:20:55.200 12308 12308 I adbd    : adbd service requested 'shell,v2,TERM=xterm-256color:export ANDROID_LOG_TAGS="''"; exec logcat '-d''
+08-01 16:20:55.209   643   643 I logd    : logdr: UID=2000 GID=2000 PID=20742 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns

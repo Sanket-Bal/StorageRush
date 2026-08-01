@@ -1,0 +1,58 @@
+Reusing configuration cache.
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :app:clean
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDebugResources
+> Task :app:javaPreCompileDebug
+> Task :app:mergeDebugAssets
+> Task :app:compressDebugAssets
+> Task :app:packageDebugResources
+> Task :app:processDebugNavigationResources
+> Task :app:checkDebugDuplicateClasses
+> Task :app:desugarDebugFileDependencies
+> Task :app:parseDebugLocalResources
+> Task :app:generateDebugRFile
+> Task :app:generateDebugGlobalSynthetics
+> Task :app:mergeLibDexDebug
+> Task :app:checkDebugAarMetadata
+> Task :app:mapDebugSourceSetPaths
+> Task :app:compileDebugNavigationResources
+
+> Task :app:compileDebugKotlin FAILED
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/SwipeCleanDatabase.kt:4:17 Unresolved reference 'room'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/SwipeCleanDatabase.kt:5:17 Unresolved reference 'room'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/SwipeCleanDatabase.kt:6:17 Unresolved reference 'room'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/SwipeCleanDatabase.kt:9:2 Unresolved reference 'Database'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/SwipeCleanDatabase.kt:14:37 Unresolved reference 'RoomDatabase'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/SwipeCleanDatabase.kt:24:32 Unresolved reference 'Room'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:3:17 Unresolved reference 'room'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:4:17 Unresolved reference 'room'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:5:17 Unresolved reference 'room'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:6:17 Unresolved reference 'room'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:7:17 Unresolved reference 'room'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:8:17 Unresolved reference 'room'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:12:2 Unresolved reference 'Dao'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:15:6 Unresolved reference 'Insert'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:15:26 Unresolved reference 'OnConflictStrategy'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:18:6 Unresolved reference 'Insert'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:18:26 Unresolved reference 'OnConflictStrategy'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:21:6 Unresolved reference 'Query'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:24:6 Unresolved reference 'Query'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:27:6 Unresolved reference 'Query'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:30:6 Unresolved reference 'Query'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:33:6 Unresolved reference 'Delete'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:36:6 Unresolved reference 'Update'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:39:6 Unresolved reference 'Query'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:42:6 Unresolved reference 'Query'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/local/TrashBinDao.kt:45:6 Unresolved reference 'Query'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/model/TrashItem.kt:3:17 Unresolved reference 'room'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/model/TrashItem.kt:4:17 Unresolved reference 'room'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/model/TrashItem.kt:7:2 Unresolved reference 'Entity'.
+e: file:///home/sb/AndroidStudioProjects/SwipeClean/app/src/main/java/com/example/swipeclean/data/model/TrashItem.kt:9:6 Unresolved reference 'PrimaryKey'.
+
+> Task :app:mergeDebugResources
