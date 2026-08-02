@@ -136,6 +136,13 @@ class MainActivity : ComponentActivity() {
                 trashViewModelInstance?.deleteSelectedItemsFallback()
             }
         } catch (e: Exception) {
+            // TEMP DEBUG: show the real reason before falling back
+            android.widget.Toast.makeText(
+                this,
+                "Delete request failed: ${e.javaClass.simpleName}: ${e.message}",
+                android.widget.Toast.LENGTH_LONG
+            ).show()
+            android.util.Log.e("SwipeClean", "MediaStore.createDeleteRequest failed", e)
             // Fallback if anything goes wrong
             trashViewModelInstance?.deleteSelectedItemsFallback()
         }
