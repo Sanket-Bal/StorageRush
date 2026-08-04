@@ -1,6 +1,8 @@
 package com.example.swipeclean.ui.permission
 
 import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,23 +24,72 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.compose.foundation.shape.RoundedCornerShape
+
+/**
+ * Builds the correct permission list to request for the running OS version.
+ * - API 34+ : IMAGES + VIDEO + VISUAL_USER_SELECTED (lets the user pick "Select photos")
+ * - API 33  : IMAGES + VIDEO
+ * - API 24-32 : READ_EXTERNAL_STORAGE
+ * POST_NOTIFICATIONS is added on 33+ regardless, since it's an independent runtime permission there.
+ */
+private fun buildPermissionsToRequest(): List<String> {
+    val permissions = mutableListOf<String>()
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        permissions.add(Manifest.permission.READ_MEDIA_IMAGES)
+        permissions.add(Manifest.permission.READ_MEDIA_VIDEO)
+        if (Build.VERSION.SDK_INT >= 34) {
+            permissions.add(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+        }
+        permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+    } else {
+        permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+    }
+    return permissions
+}
+
+/**
+ * Whether the app currently has *usable* media access — full or partial —
+ * checked fresh from the OS rather than trusting the raw request-result map,
+ * since Android 14's partial access grants a permission that was never
+ * explicitly requested.
+ */
+private fun hasUsableMediaAccess(context: Context): Boolean {
+    fun granted(permission: String) =
+        ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+
+    return when {
+        Build.VERSION.SDK_INT >= 34 -> {
+            (granted(Manifest.permission.READ_MEDIA_IMAGES) && granted(Manifest.permission.READ_MEDIA_VIDEO)) ||
+                granted(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+        }
+        Build.VERSION.SDK_INT >= 33 -> {
+            granted(Manifest.permission.READ_MEDIA_IMAGES) && granted(Manifest.permission.READ_MEDIA_VIDEO)
+        }
+        else -> granted(Manifest.permission.READ_EXTERNAL_STORAGE)
+    }
+}
 
 @Composable
 fun PermissionDialog(
     onPermissionsGranted: () -> Unit
 ) {
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
 
     val multiplePermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val allGranted = permissions.values.all { it }
-        if (allGranted) {
+    ) { _ ->
+        // Re-check actual granted state rather than trusting the raw result map:
+        // on Android 14+, choosing "Select photos" grants READ_MEDIA_VISUAL_USER_SELECTED
+        // even though it wasn't the permission literally requested.
+        if (hasUsableMediaAccess(context)) {
             onPermissionsGranted()
         }
     }
@@ -106,16 +157,7 @@ fun PermissionDialog(
             // Allow All button
             Button(
                 onClick = {
-                    val permissions = mutableListOf(
-                        Manifest.permission.READ_MEDIA_IMAGES,
-                        Manifest.permission.READ_MEDIA_VIDEO
-                    )
-                    
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        permissions.add(Manifest.permission.POST_NOTIFICATIONS)
-                    }
-                    
-                    multiplePermissionLauncher.launch(permissions.toTypedArray())
+                    multiplePermissionLauncher.launch(buildPermissionsToRequest().toTypedArray())
                 },
                 modifier = Modifier
                     .fillMaxWidth()

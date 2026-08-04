@@ -6,6 +6,9 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
 
+    <!-- Android 14+ (API 34+): user may grant access to only some photos/videos -->
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+
     <!-- Fallback permission for Android 12 and below (API 32 and lower) -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" 
                      android:maxSdkVersion="32" />

@@ -8,15 +8,28 @@ import android.provider.MediaStore
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import com.example.swipeclean.ui.deck.DeckScreen
 import com.example.swipeclean.ui.deck.DeckType
 import com.example.swipeclean.ui.permission.PermissionDialog
+import com.example.swipeclean.ui.sections.ImageSectionsScreen
+import com.example.swipeclean.ui.sections.VideoSectionsScreen
 import com.example.swipeclean.ui.stats.StatsScreen
 import com.example.swipeclean.ui.theme.SwipeCleanTheme
 import com.example.swipeclean.ui.trash.TrashBinScreen
+import com.example.swipeclean.ui.tutorial.OnboardingGateOverlay
+import com.example.swipeclean.ui.tutorial.TutorialGuideScreen
 import com.example.swipeclean.viewmodel.DeckViewModel
 import com.example.swipeclean.viewmodel.StatsViewModel
 import com.example.swipeclean.viewmodel.TrashBinViewModel
@@ -26,7 +39,22 @@ import android.os.Build
 enum class AppScreen {
     DECK,
     TRASH_BIN,
-    STATS
+    STATS,
+    IMAGE_SECTIONS,
+    VIDEO_SECTIONS,
+    TUTORIAL
+}
+
+/**
+ * Media permission state, version-aware:
+ * - FULL: all-photos access granted (any API level)
+ * - PARTIAL: Android 14+ "select photos" partial access granted
+ * - DENIED: nothing usable granted; show the permission request UI
+ */
+enum class MediaPermissionState {
+    FULL,
+    PARTIAL,
+    DENIED
 }
 
 class MainActivity : ComponentActivity() {
@@ -51,8 +79,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SwipeCleanTheme {
-                val permissionsGranted = remember {
+                val permissionState = remember {
                     mutableStateOf(checkPermissions())
+                }
+                val permissionsGranted = remember {
+                    derivedStateOf { permissionState.value != MediaPermissionState.DENIED }
                 }
 
                 val currentScreen = remember {
@@ -64,6 +95,21 @@ class MainActivity : ComponentActivity() {
                 val trashViewModel = remember { TrashBinViewModel(context = this@MainActivity) }
                 val statsViewModel = remember { StatsViewModel(context = this@MainActivity) }
 
+                // Resolved once per app session: last-viewed deck section
+                // read from storage, or the temporary fallback below if
+                // nothing's been saved yet (first launch).
+                var resolvedDeckType by remember { mutableStateOf<DeckType?>(null) }
+
+                // Resolved once per app session: has the mandatory
+                // first-launch tutorial already been completed? Null while
+                // still reading from storage.
+                var hasSeenTutorial by remember { mutableStateOf<Boolean?>(null) }
+
+                // True only during the brief window after the user taps the
+                // help button on the onboarding gate, while the mandatory
+                // tutorial cards are showing.
+                var showMandatoryTutorialCards by remember { mutableStateOf(false) }
+
                 // Store reference for deletion handler
                 trashViewModelInstance = trashViewModel
 
@@ -71,48 +117,158 @@ class MainActivity : ComponentActivity() {
                     // Show permission dialog on startup
                     PermissionDialog(
                         onPermissionsGranted = {
-                            permissionsGranted.value = true
+                            permissionState.value = checkPermissions()
                         }
                     )
                 } else {
-                    // Main app navigation
-                    when (currentScreen.value) {
-                        AppScreen.DECK -> {
-                            DeckScreen(
-                                viewModel = deckViewModel,
-                                trashViewModel = trashViewModel,
-                                deckType = DeckType.SCREENSHOTS,
-                                onNavigateToTrash = {
-                                    currentScreen.value = AppScreen.TRASH_BIN
-                                },
-                                onNavigateToStats = {
-                                    currentScreen.value = AppScreen.STATS
-                                }
-                            )
+                    // Read/resolve the initial deck once permission is granted
+                    // (Phase 4.4 + 4.6). Runs once per session.
+                    LaunchedEffect(Unit) {
+                        if (resolvedDeckType == null) {
+                            resolvedDeckType = deckViewModel.resolveInitialDeckType()
                         }
+                        if (hasSeenTutorial == null) {
+                            hasSeenTutorial = deckViewModel.hasSeenTutorial()
+                        }
+                    }
 
-                        AppScreen.TRASH_BIN -> {
-                            TrashBinScreen(
-                                viewModel = trashViewModel,
-                                onNavigateBack = {
-                                    currentScreen.value = AppScreen.DECK
-                                },
-                                onDeleteTriggered = { uris ->
-                                    // Launch MediaStore deletion
-                                    if (uris.isNotEmpty()) {
-                                        launchFileDeletion(uris)
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        // Main app navigation
+                        // NOTE: permissionState.value == MediaPermissionState.PARTIAL means the
+                        // user granted access to only some photos/videos (Android 14+). Phase 4.5
+                        // will surface a banner here prompting them to select more if they want.
+                        when (currentScreen.value) {
+                            AppScreen.DECK -> {
+                                val deckType = resolvedDeckType
+                                if (deckType == null) {
+                                    // Still resolving last-viewed section from storage
+                                    // (typically instantaneous; this rarely renders visibly).
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator()
                                     }
+                                } else {
+                                    DeckScreen(
+                                        viewModel = deckViewModel,
+                                        trashViewModel = trashViewModel,
+                                        deckType = deckType,
+                                        onNavigateBack = {
+                                            // Deck is the app's root screen — system
+                                            // back here should exit the app, not
+                                            // silently do nothing (the previous
+                                            // default) or navigate anywhere else.
+                                            finish()
+                                        },
+                                        onNavigateToTrash = {
+                                            currentScreen.value = AppScreen.TRASH_BIN
+                                        },
+                                        onNavigateToStats = {
+                                            currentScreen.value = AppScreen.STATS
+                                        },
+                                        onNavigateToImages = {
+                                            currentScreen.value = AppScreen.IMAGE_SECTIONS
+                                        },
+                                        onNavigateToVideos = {
+                                            currentScreen.value = AppScreen.VIDEO_SECTIONS
+                                        },
+                                        onOpenTutorial = {
+                                            // Voluntary reopen (dismissible mode) —
+                                            // separate from the mandatory first-launch flow.
+                                            currentScreen.value = AppScreen.TUTORIAL
+                                        }
+                                    )
                                 }
-                            )
+                            }
+
+                            AppScreen.IMAGE_SECTIONS -> {
+                                ImageSectionsScreen(
+                                    onBucketSelected = { bucket ->
+                                        // Reassigning resolvedDeckType changes DeckScreen's
+                                        // deckType param, which its own LaunchedEffect(deckType)
+                                        // reacts to by calling viewModel.loadDeck() automatically —
+                                        // no separate load call needed here.
+                                        resolvedDeckType = bucket
+                                        currentScreen.value = AppScreen.DECK
+                                    },
+                                    onNavigateBack = {
+                                        currentScreen.value = AppScreen.DECK
+                                    }
+                                )
+                            }
+
+                            AppScreen.VIDEO_SECTIONS -> {
+                                VideoSectionsScreen(
+                                    onFilterSelected = { filter ->
+                                        resolvedDeckType = filter
+                                        currentScreen.value = AppScreen.DECK
+                                    },
+                                    onNavigateBack = {
+                                        currentScreen.value = AppScreen.DECK
+                                    }
+                                )
+                            }
+
+                            AppScreen.TRASH_BIN -> {
+                                TrashBinScreen(
+                                    viewModel = trashViewModel,
+                                    onNavigateBack = {
+                                        currentScreen.value = AppScreen.DECK
+                                    },
+                                    onDeleteTriggered = { uris ->
+                                        // Launch MediaStore deletion
+                                        if (uris.isNotEmpty()) {
+                                            launchFileDeletion(uris)
+                                        }
+                                    }
+                                )
+                            }
+
+                            AppScreen.STATS -> {
+                                StatsScreen(
+                                    viewModel = statsViewModel,
+                                    onNavigateBack = {
+                                        currentScreen.value = AppScreen.DECK
+                                    }
+                                )
+                            }
+
+                            AppScreen.TUTORIAL -> {
+                                // Voluntary reopen, via the "?" button on Deck —
+                                // dismissible, since the user already knows the app.
+                                TutorialGuideScreen(
+                                    isMandatory = false,
+                                    onDismiss = {
+                                        currentScreen.value = AppScreen.DECK
+                                    }
+                                )
+                            }
                         }
 
-                        AppScreen.STATS -> {
-                            StatsScreen(
-                                viewModel = statsViewModel,
-                                onNavigateBack = {
-                                    currentScreen.value = AppScreen.DECK
-                                }
-                            )
+                        // Mandatory first-launch onboarding — drawn last so it
+                        // sits on top of literally everything above, regardless
+                        // of currentScreen (in practice this only ever shows
+                        // while on Deck, since every other screen is only
+                        // reachable through Deck's menu/buttons, which the
+                        // gate blocks).
+                        if (hasSeenTutorial == false) {
+                            if (!showMandatoryTutorialCards) {
+                                OnboardingGateOverlay(
+                                    onHelpTapped = {
+                                        showMandatoryTutorialCards = true
+                                    }
+                                )
+                            } else {
+                                TutorialGuideScreen(
+                                    isMandatory = true,
+                                    onComplete = {
+                                        deckViewModel.markTutorialSeen()
+                                        hasSeenTutorial = true
+                                        showMandatoryTutorialCards = false
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -148,17 +304,40 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun checkPermissions(): Boolean {
-        val imagePermission = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.READ_MEDIA_IMAGES
-        ) == PackageManager.PERMISSION_GRANTED
+    /**
+     * Version-aware permission check.
+     * - API 34+ : full (IMAGES+VIDEO) > partial (VISUAL_USER_SELECTED) > denied
+     * - API 33  : IMAGES+VIDEO
+     * - API 24-32 : READ_EXTERNAL_STORAGE
+     */
+    private fun checkPermissions(): MediaPermissionState {
+        fun granted(permission: String): Boolean =
+            ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
 
-        val videoPermission = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.READ_MEDIA_VIDEO
-        ) == PackageManager.PERMISSION_GRANTED
-
-        return imagePermission && videoPermission
+        return when {
+            Build.VERSION.SDK_INT >= 34 -> {
+                val fullAccess = granted(Manifest.permission.READ_MEDIA_IMAGES) &&
+                    granted(Manifest.permission.READ_MEDIA_VIDEO)
+                val partialAccess = granted(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+                when {
+                    fullAccess -> MediaPermissionState.FULL
+                    partialAccess -> MediaPermissionState.PARTIAL
+                    else -> MediaPermissionState.DENIED
+                }
+            }
+            Build.VERSION.SDK_INT >= 33 -> {
+                val fullAccess = granted(Manifest.permission.READ_MEDIA_IMAGES) &&
+                    granted(Manifest.permission.READ_MEDIA_VIDEO)
+                if (fullAccess) MediaPermissionState.FULL else MediaPermissionState.DENIED
+            }
+            else -> {
+                // API 24-32: single READ_EXTERNAL_STORAGE permission
+                if (granted(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    MediaPermissionState.FULL
+                } else {
+                    MediaPermissionState.DENIED
+                }
+            }
+        }
     }
 }

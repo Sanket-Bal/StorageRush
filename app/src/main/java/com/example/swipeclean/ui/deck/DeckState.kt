@@ -69,11 +69,38 @@ data class DeckState(
 }
 
 /**
- * Enum for different deck types
+ * Sealed class for different deck types (Phase 4.3).
+ * Was a plain enum; converted to sealed class so dynamic variants
+ * (a specific folder, a specific video filter) can carry their own data
+ * instead of being forced into a single generic "CUSTOM" bucket.
  */
-enum class DeckType {
-    SCREENSHOTS,
+sealed class DeckType {
+    object Screenshots : DeckType()
+    object MonthlyPhotos : DeckType()
+
+    /** A specific image folder, identified by its real MediaStore bucket ID (Phase 4.1). */
+    data class Bucket(val bucketId: Long, val bucketName: String) : DeckType()
+
+    /** A specific video filter section (Phase 4.2). */
+    data class VideoFilter(val filter: VideoFilterType) : DeckType()
+}
+
+enum class VideoFilterType {
     LARGE_VIDEOS,
-    MONTHLY_PHOTOS,
-    CUSTOM
+    SHORT_VIDEOS,
+    ALL_VIDEOS
+}
+
+/**
+ * Human-readable name for a deck type, used as DeckState.deckType / the top bar title.
+ */
+fun DeckType.displayName(): String = when (this) {
+    is DeckType.Screenshots -> "Screenshots"
+    is DeckType.MonthlyPhotos -> "Monthly Photos"
+    is DeckType.Bucket -> bucketName
+    is DeckType.VideoFilter -> when (filter) {
+        VideoFilterType.LARGE_VIDEOS -> "Large Videos"
+        VideoFilterType.SHORT_VIDEOS -> "Short Clips"
+        VideoFilterType.ALL_VIDEOS -> "All Videos"
+    }
 }

@@ -2,7 +2,7 @@ package com.example.swipeclean.ui.menu
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.IconButton
@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.Box
 fun AppMenu(
     onTrashBinClick: () -> Unit,
     onStatsClick: () -> Unit = {},
+    onImagesClick: () -> Unit = {},
+    onVideosClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val expanded = remember { mutableStateOf(false) }
@@ -45,6 +47,38 @@ fun AppMenu(
             onDismissRequest = { expanded.value = false },
             modifier = Modifier.background(MaterialTheme.colorScheme.surface)
         ) {
+            // Images option (Phase 4.5)
+            DropdownMenuItem(
+                text = {
+                    Text(
+                        text = "🖼️ Images",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                onClick = {
+                    expanded.value = false
+                    onImagesClick()
+                }
+            )
+
+            // Videos option (Phase 4.5)
+            DropdownMenuItem(
+                text = {
+                    Text(
+                        text = "🎬 Videos",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                onClick = {
+                    expanded.value = false
+                    onVideosClick()
+                }
+            )
+
+            HorizontalDivider()
+
             // Trash Bin option
             DropdownMenuItem(
                 text = {
@@ -60,7 +94,7 @@ fun AppMenu(
                 }
             )
 
-            Divider()
+            HorizontalDivider()
 
             // Stats option
             DropdownMenuItem(
@@ -75,16 +109,6 @@ fun AppMenu(
                     expanded.value = false
                     onStatsClick()
                 }
-            )
-
-            Divider()
-
-            // Future menu items placeholder
-            Text(
-                text = "More coming soon...",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.clickable(enabled = false) {}
             )
         }
     }
