@@ -22,6 +22,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Swipe Clean"
+rootProject.name = "StorageRush"
 include(":app")
  

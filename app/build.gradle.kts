@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.swipeclean"
+    namespace = "com.storagerush.app"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.swipeclean"
+        applicationId = "com.storagerush.app"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -50,6 +50,13 @@ dependencies {
 
     // Image Loading (Coil for Jetpack Compose)
     implementation("io.coil-kt:coil-compose:2.6.0")
+
+    // Video frame thumbnail decoding for Coil (fixes blank video cards in the deck)
+    implementation("io.coil-kt:coil-video:2.6.0")
+
+    // Media3 ExoPlayer for the video overlay player (Phase B)
+    implementation("androidx.media3:media3-exoplayer:1.3.1")
+    implementation("androidx.media3:media3-ui:1.3.1")
 
     // DataStore Preferences (for local app settings)
     implementation("androidx.datastore:datastore-preferences:1.0.0")
