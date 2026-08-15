@@ -101,6 +101,26 @@ class StatsRepository(private val context: Context) {
     }
 
     /**
+     * LOGIN RESTORE: overwrites local lifetime stats with values pulled
+     * from the cloud player record, for a returning user logging back in
+     * on a fresh install. lastSession* fields are deliberately left at 0 —
+     * there's no "last session" yet on this fresh install, and restoring
+     * a stale one from the old device would trigger a misleading
+     * "you just freed X" notification that didn't actually just happen.
+     */
+    suspend fun restoreFromCloud(
+        totalStorageFreedBytes: Long,
+        totalMediaCleaned: Int,
+        largestSingleCleanupBytes: Long
+    ) {
+        dataStore.edit { preferences ->
+            preferences[TOTAL_FREED_KEY] = totalStorageFreedBytes
+            preferences[TOTAL_CLEANED_KEY] = totalMediaCleaned.toLong()
+            preferences[LARGEST_SINGLE_CLEANUP_KEY] = largestSingleCleanupBytes
+        }
+    }
+
+    /**
      * Clear all stats (for testing or manual reset)
      */
     suspend fun clearAllStats() {

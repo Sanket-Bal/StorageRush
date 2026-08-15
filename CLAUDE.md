@@ -1,16 +1,18 @@
-# SwipeClean — Claude Instructions
+# StorageRush — Claude Instructions
 
 This is an Android app. Full project context is in `.claude/project.md`. Read it first before making any changes.
 
 ## Quick Reference
 
-**Package**: `com.example.swipeclean`
+**Package**: `com.storagerush.app`
+**App Name**: Storage Rush
 **Language**: Kotlin + Jetpack Compose + Material3
 **Architecture**: MVVM, no Hilt, no NavComponent, manual `mutableStateOf` navigation
 **Persistence**: DataStore only (no Room)
 **Media access**: Android MediaStore API
-**Video thumbnails**: Coil `VideoFrameDecoder` registered in `SwipeCleanApplication`
-**Min SDK**: 24 | **Target/Compile SDK**: 34 | **Kotlin**: 2.2.10
+**Video thumbnails**: Coil `VideoFrameDecoder` registered in `StorageRushApplication`
+**Cloud backend**: Supabase (anonymous auth + Postgrest) via `supabase-kt BOM 3.5.0`
+**Min SDK**: 24 | **Target/Compile SDK**: 34 | **Kotlin**: 2.2.10 | **AGP**: 9.3.1
 
 ## Coding Rules
 
@@ -25,26 +27,58 @@ This is an Android app. Full project context is in `.claude/project.md`. Read it
 
 ## Current Screens
 | Screen | File | ViewModel |
-|--------|------|-----------|
+|--------|------|-----------| 
 | Deck (swipe) | `ui/deck/DeckScreen.kt` | `viewmodel/DeckViewModel.kt` |
 | Trash Bin | `ui/trash/TrashBinScreen.kt` | `viewmodel/TrashBinViewModel.kt` |
-| Stats | `ui/stats/StatsScreen.kt` | `ui/stats/StatsViewModel.kt` |
+| Stats (3-tab) | `ui/stats/StatsScreen.kt` | `ui/stats/StatsViewModel.kt` |
+| Image Sections | `ui/sections/ImageSectionsScreen.kt` | *(no ViewModel — direct repo call)* |
+| Video Sections | `ui/sections/VideoSectionsScreen.kt` | *(no ViewModel — static list)* |
+| Tutorial | `ui/tutorial/TutorialGuideScreen.kt` | *(no ViewModel)* |
+
+## Leaderboard Scopes (StatsScreen → Leaderboard tab)
+| Scope | Source | State class |
+|-------|--------|-------------|
+| Local | Local DataStore | `StatsUiState` / `PlayerState` |
+| Friends | Supabase `friends` + `players` join | `FriendsUiState` in `StatsViewModel` |
+| Global | Supabase `players` top-50 | `GlobalUiState` in `StatsViewModel` |
 
 ## Key Files to Know
 | File | Purpose |
 |------|---------|
-| `SwipeCleanApplication.kt` | Registers Coil `VideoFrameDecoder` globally for video thumbnails |
-| `MainActivity.kt` | Entry point, permission check, `AppScreen` navigation |
+| `StorageRushApplication.kt` | Registers Coil `VideoFrameDecoder` globally for video thumbnails |
+| `MainActivity.kt` | Entry point, permission check, `AppScreen` navigation, onboarding gate + cloud setup logic |
 | `data/model/MediaItem.kt` | Core domain model (photo/video) |
-| `data/model/TrashItem.kt` | Serializable trash entry |
-| `ui/deck/DeckState.kt` | Deck UI state + `DeckType` enum |
+| `data/model/TrashItem.kt` | Serializable trash entry (includes `uri: String`) |
+| `data/model/BucketInfo.kt` | Represents a discovered image folder (bucketId, name, count, thumbnail) |
+| `data/model/AppSettings.kt` | User preferences model (not yet wired to DataStore) |
+| `data/model/remote/PlayerRecord.kt` | Mirrors `public.players` Supabase table |
+| `data/model/remote/FriendRecord.kt` | Mirrors `public.friends` table + `FriendLeaderboardEntry` joined shape |
+| `data/model/remote/FriendCodeRecord.kt` | Mirrors `public.friend_codes` table |
+| `data/remote/SupabaseClientProvider.kt` | Singleton Supabase client (Auth + Postgrest) |
+| `data/repository/CloudSyncRepository.kt` | Anonymous auth, player record CRUD, OTP sign-up/login, progress sync |
+| `data/repository/FriendsRepository.kt` | Friend code generate/redeem, friends leaderboard query (fully implemented) |
+| `viewmodel/StatsViewModel.kt` | Now lives in `viewmodel/` (not `ui/stats/`) — holds `FriendsUiState` + `GlobalUiState` alongside `StatsUiState` |
+| `ui/deck/DeckState.kt` | Deck UI state + `DeckType` sealed class + `VideoFilterType` enum |
 | `ui/deck/MediaCard.kt` | Swipeable card with drag + tap-for-video gesture |
-| `ui/menu/AppMenu.kt` | Hamburger menu (Images, Videos, Trash, Stats) |
+| `ui/deck/ProgressCard.kt` | Compact Level/XP/streak bar shown at top of Deck |
+| `ui/deck/AchievementToast.kt` | Top-anchored animated toast for achievement unlocks |
+| `ui/deck/LevelUpCelebrationOverlay.kt` | Full-screen level-up celebration |
+| `ui/deck/VideoOverlay.kt` | Full-screen ExoPlayer video overlay |
+| `ui/menu/AppMenu.kt` | Hamburger menu (Images, Videos, Trash Bin, Cleanup Stats) |
+| `ui/components/HelpButton.kt` | Reusable "?" circle button |
+| `ui/onboarding/AccountLinkDialog.kt` | Optional email OTP Sign Up / Log In dialog (shown once after tutorial) |
+| `ui/onboarding/NicknameSetupDialog.kt` | Mandatory nickname + cloud profile creation dialog |
 | `ui/permission/PermissionDialog.kt` | Multi-permission request (handles API 24–34+) |
+| `ui/tutorial/OnboardingGateOverlay.kt` | Mandatory first-launch gate — blocks UI until user taps "?" |
+| `ui/tutorial/TutorialGuideScreen.kt` | 4-card swipeable tutorial (mandatory + dismissible modes) |
 | `data/repository/MediaStoreRepository.kt` | All MediaStore queries (Flow-based, batched) |
 | `data/repository/TrashBinRepository.kt` | DataStore trash persistence (JSON, max 100, auto-purge 30d) |
-| `data/repository/StatsRepository.kt` | DataStore stats persistence |
-| `util/PermissionHelper.kt` | Permission check utilities |
+| `data/repository/StatsRepository.kt` | DataStore stats persistence + `restoreFromCloud()` |
+| `data/repository/PlayerRepository.kt` | DataStore player progression (XP, level, streak) + `restoreFromCloud()` |
+| `data/repository/UserPreferencesRepository.kt` | DataStore user prefs (last deck, tutorial seen, cloud setup, account linking) |
+| `data/gamification/XpCalculator.kt` | Pure XP/level math (no Android deps) |
+| `data/gamification/Achievement.kt` | 12 achievement badge definitions |
+| `viewmodel/PlayerViewModel.kt` | Exposes `PlayerState` Flow for Deck's ProgressCard |
 
 ## Permissions (AndroidManifest)
 - `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO` (API 33+)
@@ -56,4 +90,13 @@ This is an Android app. Full project context is in `.claude/project.md`. Read it
 - `AppSettings.kt` model exists but is NOT yet wired to DataStore
 - `PermissionDialogState.kt` exists but is NOT used by `PermissionDialog.kt`
 - `MainScreen.kt` is a Phase 1 leftover — not used anywhere
-- `AppMenu` has `onImagesClick` and `onVideosClick` callbacks that are not yet navigating anywhere (Phase 4.5 placeholders)
+- `StatsViewModel` lives in `ui/stats/` (not `viewmodel/`) — inconsistency to be aware of, don't move it
+- `MediaPermissionState` enum (FULL / PARTIAL / DENIED) lives in `MainActivity.kt`
+- Streak weeks are fixed to IST (`Asia/Kolkata`) regardless of device timezone — intentional per spec
+- Supabase anon key is currently hardcoded in `SupabaseClientProvider.kt` — move to `local.properties`/`BuildConfig` before public release
+- `FriendsRepository` is fully wired and the Friends leaderboard tab UI is built (friend code display/copy, redeem input, friends list)
+- Global leaderboard tab is built (top-50 worldwide, "You" highlight if in top 50)
+- `StatsViewModel` moved to `viewmodel/` package — `ui/stats/StatsViewModel.kt` is the old location; new canonical path is `viewmodel/StatsViewModel.kt`
+- `AccountLinkDialog` supports `confirmBeforeRestore = true` for mid-session login (menu path) to prevent silently overwriting local progress
+- `AppMenu` has live Sign Up/Log In ↔ Log Out toggle driven by `UserPreferencesRepository.isAccountLinkedFlow`
+- Logout flow resets local DataStore (level/XP/streak/stats/nickname) in addition to signing out of Supabase

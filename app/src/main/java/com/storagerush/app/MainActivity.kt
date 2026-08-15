@@ -11,13 +11,19 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
@@ -31,6 +37,12 @@ import com.storagerush.app.ui.theme.StorageRushTheme
 import com.storagerush.app.ui.trash.TrashBinScreen
 import com.storagerush.app.ui.tutorial.OnboardingGateOverlay
 import com.storagerush.app.ui.tutorial.TutorialGuideScreen
+import com.storagerush.app.ui.onboarding.NicknameSetupDialog
+import com.storagerush.app.ui.onboarding.AccountLinkDialog
+import com.storagerush.app.data.repository.CloudSyncRepository
+import com.storagerush.app.data.repository.PlayerRepository
+import com.storagerush.app.data.repository.StatsRepository
+import com.storagerush.app.data.repository.UserPreferencesRepository
 import com.storagerush.app.viewmodel.DeckViewModel
 import com.storagerush.app.viewmodel.PlayerViewModel
 import com.storagerush.app.viewmodel.StatsViewModel
@@ -105,6 +117,30 @@ class MainActivity : ComponentActivity() {
                 val statsViewModel = remember { StatsViewModel(context = this@MainActivity) }
                 val playerViewModel = remember { PlayerViewModel(context = this@MainActivity) }
 
+                // Phase A (Friends leaderboard) — cloud infrastructure
+                val userPreferencesRepository = remember { UserPreferencesRepository(this@MainActivity) }
+                val cloudSyncRepository = remember { CloudSyncRepository(this@MainActivity) }
+                val playerRepository = remember { PlayerRepository(this@MainActivity) }
+                val statsRepository = remember { StatsRepository(this@MainActivity) }
+                var showNicknameDialog by remember { mutableStateOf(false) }
+                var showAccountLinkDialog by remember { mutableStateOf(false) }
+                var hasCompletedCloudSetup by remember { mutableStateOf(false) }
+
+                // Menu-triggered account linking (separate from the onboarding
+                // showAccountLinkDialog above) — reachable any time via the
+                // hamburger menu, not just once after the first-launch tutorial.
+                var showMenuAccountLinkDialog by remember { mutableStateOf(false) }
+                var showLogoutConfirmation by remember { mutableStateOf(false) }
+                val scope = rememberCoroutineScope()
+
+                // Reactive link state for the menu's Sign Up/Log In ↔ Log Out
+                // item — flips live the moment markAccountLinked()/
+                // clearAccountLink() writes to DataStore, no manual refresh needed.
+                val isAccountLinked by userPreferencesRepository.isAccountLinkedFlow
+                    .collectAsState(initial = false)
+                val linkedEmail by userPreferencesRepository.linkedEmailFlow
+                    .collectAsState(initial = null)
+
                 // Resolved once per app session: last-viewed deck section
                 // read from storage, or the temporary fallback below if
                 // nothing's been saved yet (first launch).
@@ -140,6 +176,8 @@ class MainActivity : ComponentActivity() {
                         if (hasSeenTutorial == null) {
                             hasSeenTutorial = deckViewModel.hasSeenTutorial()
                         }
+                        // Load cloud setup state from UserPreferences
+                        hasCompletedCloudSetup = userPreferencesRepository.hasCompletedCloudSetup()
                     }
 
                     Box(modifier = Modifier.fillMaxSize()) {
@@ -178,6 +216,12 @@ class MainActivity : ComponentActivity() {
                                         onNavigateToStats = {
                                             currentScreen.value = AppScreen.STATS
                                         },
+                                        onNavigateToProfile = {
+                                            // Profile is the (renamed) first tab of
+                                            // StatsScreen, which defaults to it on
+                                            // fresh composition — no extra state needed.
+                                            currentScreen.value = AppScreen.STATS
+                                        },
                                         onNavigateToImages = {
                                             currentScreen.value = AppScreen.IMAGE_SECTIONS
                                         },
@@ -188,6 +232,14 @@ class MainActivity : ComponentActivity() {
                                             // Voluntary reopen (dismissible mode) —
                                             // separate from the mandatory first-launch flow.
                                             currentScreen.value = AppScreen.TUTORIAL
+                                        },
+                                        isAccountLinked = isAccountLinked,
+                                        linkedEmail = linkedEmail,
+                                        onAccountLinkClick = {
+                                            showMenuAccountLinkDialog = true
+                                        },
+                                        onLogoutClick = {
+                                            showLogoutConfirmation = true
                                         }
                                     )
                                 }
@@ -277,9 +329,128 @@ class MainActivity : ComponentActivity() {
                                         deckViewModel.markTutorialSeen()
                                         hasSeenTutorial = true
                                         showMandatoryTutorialCards = false
+                                        // After tutorial, offer account linking first (dismissible),
+                                        // falling through to nickname setup either way it resolves.
+                                        if (!hasCompletedCloudSetup) {
+                                            showAccountLinkDialog = true
+                                        }
                                     }
                                 )
                             }
+                        }
+
+                        // Account linking (Sign Up / Log In) — offered once after tutorial,
+                        // dismissible. Shown before NicknameSetupDialog so a returning
+                        // user can restore their existing profile instead of getting a
+                        // fresh nickname prompt.
+                        if (showAccountLinkDialog) {
+                            AccountLinkDialog(
+                                cloudSyncRepository = cloudSyncRepository,
+                                userPreferencesRepository = userPreferencesRepository,
+                                playerRepository = playerRepository,
+                                statsRepository = statsRepository,
+                                onDismissed = {
+                                    // Skip/X: stay anonymous, no nickname popup. The user
+                                    // can still play locally and link an account later via
+                                    // the hamburger menu.
+                                    showAccountLinkDialog = false
+                                },
+                                onNeedsNickname = {
+                                    // Reached only via a real Sign Up (verifySignUpOtp) —
+                                    // Log In never routes here, see AccountLinkDialog.
+                                    showAccountLinkDialog = false
+                                    showNicknameDialog = true
+                                },
+                                onFullyRestored = {
+                                    showAccountLinkDialog = false
+                                    hasCompletedCloudSetup = true
+                                    // Progress was just restored into local DataStore by
+                                    // AccountLinkDialog — no nickname dialog needed, this
+                                    // is a returning user with an existing profile.
+                                }
+                            )
+                        }
+
+                        // Nickname setup dialog (Phase A finalizer) — shown after tutorial,
+                        // blocks main app interaction until player profile is created on cloud.
+                        // Gated by hasCompletedCloudSetup so it never shows twice.
+                        if (showNicknameDialog && !hasCompletedCloudSetup) {
+                            NicknameSetupDialog(
+                                cloudSyncRepository = cloudSyncRepository,
+                                userPreferencesRepository = userPreferencesRepository,
+                                onSetupComplete = {
+                                    showNicknameDialog = false
+                                    hasCompletedCloudSetup = true
+                                    // Cloud sync is now active; syncing will happen automatically
+                                    // after every cleanup event (see TrashBinViewModel.syncPlayerProgress())
+                                }
+                            )
+                        }
+
+                        // Menu-triggered account linking — reachable any time via
+                        // AppMenu's "Sign Up / Log In" item, not just once after
+                        // onboarding. confirmBeforeRestore = true here: unlike the
+                        // onboarding path above, there may be real local progress
+                        // worth protecting by now, so a successful Log In pauses
+                        // on an inline confirmation before overwriting it.
+                        if (showMenuAccountLinkDialog) {
+                            AccountLinkDialog(
+                                cloudSyncRepository = cloudSyncRepository,
+                                userPreferencesRepository = userPreferencesRepository,
+                                playerRepository = playerRepository,
+                                statsRepository = statsRepository,
+                                confirmBeforeRestore = true,
+                                onDismissed = {
+                                    showMenuAccountLinkDialog = false
+                                },
+                                onNeedsNickname = {
+                                    showMenuAccountLinkDialog = false
+                                    showNicknameDialog = true
+                                },
+                                onFullyRestored = {
+                                    showMenuAccountLinkDialog = false
+                                    hasCompletedCloudSetup = true
+                                }
+                            )
+                        }
+
+                        // Log Out confirmation — resets local progress to a fresh
+                        // new-player state (see PlayerRepository.resetToNewPlayer() /
+                        // StatsRepository.clearAllStats()). The cloud record itself is
+                        // untouched, so logging back in restores it — this warning is
+                        // about local device state, not data loss.
+                        if (showLogoutConfirmation) {
+                            AlertDialog(
+                                onDismissRequest = { showLogoutConfirmation = false },
+                                title = { Text("Log out?") },
+                                text = {
+                                    Text("This will reset your local level, streak, and stats back to a fresh start. Your cloud-saved progress isn't deleted — logging back in will restore it.")
+                                },
+                                confirmButton = {
+                                    TextButton(onClick = {
+                                        showLogoutConfirmation = false
+                                        scope.launch {
+                                            cloudSyncRepository.signOut()
+                                            userPreferencesRepository.clearAccountLink()
+                                            // The level/streak/stats on screen belonged to
+                                            // the account just logged out of — reset local
+                                            // progress back to a fresh new-player state
+                                            // rather than continuing to show it. Achievement
+                                            // badges are derived live from these same values
+                                            // (see Achievement.kt), so they reset for free.
+                                            playerRepository.resetToNewPlayer()
+                                            statsRepository.clearAllStats()
+                                        }
+                                    }) {
+                                        Text("Log Out")
+                                    }
+                                },
+                                dismissButton = {
+                                    TextButton(onClick = { showLogoutConfirmation = false }) {
+                                        Text("Cancel")
+                                    }
+                                }
+                            )
                         }
                     }
                 }

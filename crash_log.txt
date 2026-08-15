@@ -1,0 +1,312 @@
+--------- beginning of main
+08-11 19:22:22.066  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f30 went down
+08-11 19:22:22.066  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f31 went down
+08-11 19:22:22.067  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f32 went down
+08-11 19:22:22.067  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f33 went down
+--------- beginning of kernel
+08-11 19:22:21.480   369   369 E         : [drm:dsi_pwr_panel_regulator_mode_set [msm_drm]] *ERROR* [msm-dsi-error]: Regulator ibb was not found
+08-11 19:22:22.087  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f35 went down
+08-11 19:22:22.088  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f36 went down
+08-11 19:22:22.089  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f37 went down
+08-11 19:22:21.490  5257  5257 E i2c_geni a84000.i2c: i2c error :-107
+08-11 19:22:21.491  5257  5257 E nfc_i2c_dev_write: failed to write -107
+08-11 19:22:22.090  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f38 went down
+08-11 19:22:21.528  1468  1468 E         : [drm:sde_connector_atomic_set_property:1726] [sde error]conn55 set finger flag: 1
+08-11 19:22:21.528   369   369 E         : [drm:_sde_connector_update_finger_hbm_status:868] [sde error]open hbm
+08-11 19:22:22.122  1369  1369 E HWComposer: getDisplayDecorationSupport: getDisplayDecorationSupport failed for display 4630946480328692354: Unsupported (8)
+08-11 19:22:22.125  1191  1468 E SDM     : HWDeviceDRM::SetupAtomic: setupatomic finger_flag 1
+08-11 19:22:21.528   369   369 E         : [drm:sde_backlight_device_update_status:141] [sde error]update hbm brightness
+08-11 19:22:22.144  1369  3628 E NtLayer : create FingerPrintLayer
+08-11 19:22:22.155  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f20 went down
+08-11 19:22:22.157  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f25 went down
+08-11 19:22:21.570  1704  1704 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:22.165  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f2a went down
+08-11 19:22:22.172  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f3a went down
+08-11 19:22:21.584  1704  1704 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:22.187  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f3b went down
+08-11 19:22:22.188  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f3c went down
+08-11 19:22:22.188  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f3d went down
+08-11 19:22:21.600 23993 23993 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.617 29459 29459 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.635 23993 23993 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.651 29459 29459 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.668 23993 23993 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.685 23993 23993 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.702 29459 29459 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.717 23993 23993 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.734  1704  1704 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.751 29459 29459 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.767 23993 23993 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.785  3878  3878 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.803  1704  1704 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.817 23993 23993 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.836 23993 23993 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.852 29459 29459 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.868  3878  3878 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.884 23993 23993 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.901 23993 23993 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.917 23993 23993 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.934  3878  3878 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:22.546  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f3f went down
+08-11 19:22:22.546  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f40 went down
+08-11 19:22:22.547  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f41 went down
+08-11 19:22:22.548  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f42 went down
+08-11 19:22:21.951  3878  3878 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.968 23993 23993 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:21.984  3878  3878 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:22.000  1704  1704 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:22.613  1369  1390 E NtLayer : create FingerPrintLayer
+08-11 19:22:22.613  1369  1390 E NtLayer : create FingerPressedLayer
+08-11 19:22:22.613  1369  1390 E NtLayer : create FingerPressedLayer
+08-11 19:22:22.613  1369  1390 E NtLayer : create FingerPressedLayer
+08-11 19:22:22.017 23993 23993 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:22.618  1566  2938 E HidlToAidlSessionAdapter: onUiReady unsupported in HIDL
+08-11 19:22:22.626  2236  2236 E fingerprint@2.3-service: line=305 [onFingerDown] enter :x=484,y=2213,minor=111.924873,major=111.924873
+08-11 19:22:22.628  2236  2236 E fingerprint@2.3-service: perf_lock_handle = 30878
+08-11 19:22:22.628  2236  2236 E FingerprintHal: line=218 [goodixExtCmd] enter command<1>,extras<0>
+08-11 19:22:22.628  2236  2236 E FingerprintHal: [goodixExtCmd]fingerprint goodixExtCmd Finger Down
+08-11 19:22:22.628  2236  2708 E fingerprint@2.3-service: line=322 [notify] enter
+08-11 19:22:22.628  2236  2708 E fingerprint@2.3-service: line=210 [getInstance] enter
+08-11 19:22:22.628  2236  2708 E fingerprint@2.3-service: onAcquired(6)
+08-11 19:22:22.038 23993 23993 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:22.060 31473 31473 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:22.071  3878  3878 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:22.079  3878  3878 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:22.097  1704  1704 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:22.104  3878  3878 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:22.112  1704  1704 E         : [drm:_sde_connector_set_brightness_work:947] [sde error]update hbm brightness
+08-11 19:22:22.804  2236  2708 E fingerprint@2.3-service: line=322 [notify] enter
+08-11 19:22:22.804  2236  2708 E fingerprint@2.3-service: line=210 [getInstance] enter
+08-11 19:22:22.804  2236  2708 E fingerprint@2.3-service: onAcquired(0)
+08-11 19:22:22.804  2236  2708 E fingerprint@2.3-service: line=322 [notify] enter
+08-11 19:22:22.804  2236  2708 E fingerprint@2.3-service: line=210 [getInstance] enter
+08-11 19:22:22.804  2236  2708 E fingerprint@2.3-service: onAuthenticated(fid=-1793213393, gid=0)
+--------- beginning of system
+08-11 19:22:22.807  1566  2861 E MultiBiometricLockoutState: getAuthMapForUser : 0 containsKey:true
+08-11 19:22:22.807  1566  2861 E MultiBiometricLockoutState: getAuthMapForUser : 0 containsKey:true
+08-11 19:22:22.807  1566  2861 E MultiBiometricLockoutState: clearTimedLockout : 0 strength:4095
+08-11 19:22:22.807  1566  2861 E MultiBiometricLockoutState: getAuthMapForUser : 0 containsKey:true
+08-11 19:22:22.807  1566  2861 E MultiBiometricLockoutState: getAuthMapForUser : 0 containsKey:true
+08-11 19:22:22.807  1566  2861 E MultiBiometricLockoutState: clearTimedLockout : 0 strength:255
+08-11 19:22:22.807  1566  2861 E MultiBiometricLockoutState: getAuthMapForUser : 0 containsKey:true
+08-11 19:22:22.807  1566  2861 E MultiBiometricLockoutState: getAuthMapForUser : 0 containsKey:true
+08-11 19:22:22.807  1566  2861 E MultiBiometricLockoutState: clearTimedLockout : 0 strength:15
+08-11 19:22:22.808  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f3e went down
+08-11 19:22:22.829  1566  4830 E ActivityManager: Sending non-protected broadcast com.nothing.systemui.NT_USER_PRESENT from system 3019:com.android.systemui/u0a157 pkg com.android.systemui
+08-11 19:22:22.829  1566  4830 E ActivityManager: java.lang.Throwable
+08-11 19:22:22.829  1566  4830 E ActivityManager: 	at com.android.server.am.ActivityManagerService.checkBroadcastFromSystem(ActivityManagerService.java:15674)
+08-11 19:22:22.829  1566  4830 E ActivityManager: 	at com.android.server.am.ActivityManagerService.broadcastIntentLockedTraced(ActivityManagerService.java:16566)
+08-11 19:22:22.829  1566  4830 E ActivityManager: 	at com.android.server.am.ActivityManagerService.broadcastIntentLocked(ActivityManagerService.java:15740)
+08-11 19:22:22.829  1566  4830 E ActivityManager: 	at com.android.server.am.ActivityManagerService.broadcastIntentWithFeature(ActivityManagerService.java:16776)
+08-11 19:22:22.829  1566  4830 E ActivityManager: 	at android.app.IActivityManager$Stub.onTransact(IActivityManager.java:2915)
+08-11 19:22:22.829  1566  4830 E ActivityManager: 	at com.android.server.am.ActivityManagerService.onTransact(ActivityManagerService.java:2926)
+08-11 19:22:22.829  1566  4830 E ActivityManager: 	at android.os.Binder.execTransactInternal(Binder.java:1512)
+08-11 19:22:22.829  1566  4830 E ActivityManager: 	at android.os.Binder.execTransact(Binder.java:1451)
+08-11 19:22:22.834  3019  3019 E BufferQueueProducer: [SurfaceView[UdfpsControllerOverlay]#2219(BLAST Consumer)2219](id:bcb000008ad,api:0,p:-1,c:3019) disconnect: not connected (req=2)
+08-11 19:22:22.835  1566  2938 E FingerprintProvider/defaultHIDL: onPointerUp received during client: null
+08-11 19:22:22.846  1191  1468 E SDM     : HWDeviceDRM::SetupAtomic: setupatomic finger_flag 0
+08-11 19:22:22.249  1468  1468 E         : [drm:sde_connector_atomic_set_property:1726] [sde error]conn55 set finger flag: 0
+08-11 19:22:22.856   676   687 E DrmLibFs: file_unlink is done and returns 0
+08-11 19:22:22.900   676   687 E DrmLibFs: file_unlink is done and returns 0
+08-11 19:22:22.249   369   369 E         : [drm:_sde_connector_update_finger_hbm_status:882] [sde error]close hbm
+08-11 19:22:23.142  3019  3192 E FromLockscreenTransitionInteractor: Ignoring startTransition: This interactor asked to transition from LOCKSCREEN -> GONE, but we last transitioned to GONE, not LOCKSCREEN. This should never happen - check currentTransitionInfoInternal or use filterRelevantKeyguardState before starting transitions.
+08-11 19:22:23.142  3019  3192 E FromLockscreenTransitionInteractor: This transition would not have been ignored prior to ag/26681239, since we are FINISHED in LOCKSCREEN (but have since started another transition). If ignoring this transition has caused a regression, fix it by ensuring that transitions are exclusively started from the most recently started state.
+08-11 19:22:23.143  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f39 went down
+08-11 19:22:22.547  5257  5257 E i2c_geni a84000.i2c: i2c error :-107
+08-11 19:22:22.548  5257  5257 E nfc_i2c_dev_write: failed to write -107
+08-11 19:22:23.151  1566  5296 E ActivityManager: Sending non-protected broadcast com.nothing.systemui.NT_USER_PRESENT from system 3019:com.android.systemui/u0a157 pkg com.android.systemui
+08-11 19:22:23.151  1566  5296 E ActivityManager: java.lang.Throwable
+08-11 19:22:23.151  1566  5296 E ActivityManager: 	at com.android.server.am.ActivityManagerService.checkBroadcastFromSystem(ActivityManagerService.java:15674)
+08-11 19:22:23.151  1566  5296 E ActivityManager: 	at com.android.server.am.ActivityManagerService.broadcastIntentLockedTraced(ActivityManagerService.java:16566)
+08-11 19:22:23.151  1566  5296 E ActivityManager: 	at com.android.server.am.ActivityManagerService.broadcastIntentLocked(ActivityManagerService.java:15740)
+08-11 19:22:23.151  1566  5296 E ActivityManager: 	at com.android.server.am.ActivityManagerService.broadcastIntentWithFeature(ActivityManagerService.java:16776)
+08-11 19:22:23.151  1566  5296 E ActivityManager: 	at android.app.IActivityManager$Stub.onTransact(IActivityManager.java:2915)
+08-11 19:22:23.151  1566  5296 E ActivityManager: 	at com.android.server.am.ActivityManagerService.onTransact(ActivityManagerService.java:2926)
+08-11 19:22:23.151  1566  5296 E ActivityManager: 	at android.os.Binder.execTransactInternal(Binder.java:1512)
+08-11 19:22:23.151  1566  5296 E ActivityManager: 	at android.os.Binder.execTransact(Binder.java:1451)
+08-11 19:22:23.155  3019 31615 E AudioTrack: createTrack_l(1409) on outputId 13 : 0xb4000074c43de2c0, mCblk = 0x73123a5000, mLatency = 220, mAfLatency = 95, frameCount = 5513, mSampleRate = 44100, mFlags = 00000000, mReqFrameCount = 5513, mNotificationFramesAct = 0
+08-11 19:22:23.162  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 1 port 5f2f went down
+08-11 19:22:23.169  1131  4470 E audio_hw_utils: send_app_type_cfg_for_device: Could not get ctl for mixer cmd - Audio Stream Capture 47 App Type Cfg
+08-11 19:22:22.600  4470  4470 E msm_adsp_init_mixer_ctl_adm_pp_event_queue: failed to get kctl.
+08-11 19:22:22.640  4470  4470 E q6asm_find_cal_by_buf_number: Can't find ASM Cal for cal_index 2 app_type 69937 buffer_number 8
+08-11 19:22:23.838  1312  4271 E ANDR-PERF-LM: VmRssMeter:: start() 453: Could not find pid, can not collect vmrss data
+08-11 19:22:23.838  1312  4272 E ANDR-PERF-LM: VmRssMeter:: start() 453: Could not find pid, can not collect vmrss data
+08-11 19:22:23.838  1312  4272 E ANDR-PERF-LM: AdaptiveLaunch: writeToDataBase() 64: Meter aborted or could not get meter data for this run
+08-11 19:22:24.325 26834 26834 E [schedu][0x20800e674a9][13:52:24.923299] wlan: [26834:E:PE] 00000000: d0 00 00 00 ff ff ff ff ff ff 12 74 e3 f6 26 9e
+08-11 19:22:24.325 26834 26834 E [schedu][0x20800e67591][13:52:24.923311] wlan: [26834:E:PE] 00000010: 12 74 e3 f6 26 9e f0 8c 04 22 43 00 00 00 00 00
+08-11 19:22:24.325 26834 26834 E [schedu][0x20800e675ce][13:52:24.923315] wlan: [26834:E:PE] 00000020: 00 00 00 00 64 00 83 b8 e7 a8 c3 02 00 1e
+08-11 19:22:24.381 26834 26834 E [schedu][0x20800f699bb][13:52:24.978407] wlan: [26834:E:PE] 00000000: d0 00 00 00 ff ff ff ff ff ff 12 74 e3 f6 26 9e
+08-11 19:22:24.381 26834 26834 E [schedu][0x20800f69add][13:52:24.978422] wlan: [26834:E:PE] 00000010: 12 74 e3 f6 26 9e 10 8d 04 22 43 00 00 00 00 00
+08-11 19:22:24.381 26834 26834 E [schedu][0x20800f69b2c][13:52:24.978426] wlan: [26834:E:PE] 00000020: 00 00 00 00 64 00 83 b8 e7 a8 c3 02 00 1e
+08-11 19:22:25.029  3988  3988 E simulated_ntc: proc_shell_write write invalid para
+08-11 19:22:25.822  1197  1197 E msm_adsp_clean_mixer_ctl_adm_pp_event_queue: failed to get kctl.
+08-11 19:22:28.432 26834 26834 E [schedu][0x20805996b59][13:52:29.029415] wlan: [26834:E:PE] 00000000: d0 00 00 00 ff ff ff ff ff ff 12 74 e3 f6 26 9e
+08-11 19:22:28.432 26834 26834 E [schedu][0x20805996c87][13:52:29.029431] wlan: [26834:E:PE] 00000010: 12 74 e3 f6 26 9e 30 8d 04 22 43 00 00 00 00 00
+08-11 19:22:28.432 26834 26834 E [schedu][0x20805996ce5][13:52:29.029436] wlan: [26834:E:PE] 00000020: 00 00 00 00 64 00 83 b8 e7 a8 c3 02 00 1e
+08-11 19:22:28.476 26834 26834 E [schedu][0x20805a65e1a][13:52:29.073612] wlan: [26834:E:PE] 00000000: d0 00 00 00 ff ff ff ff ff ff 12 74 e3 f6 26 9e
+08-11 19:22:28.476 26834 26834 E [schedu][0x20805a65f2d][13:52:29.073626] wlan: [26834:E:PE] 00000010: 12 74 e3 f6 26 9e 50 8d 04 22 43 00 00 00 00 00
+08-11 19:22:28.476 26834 26834 E [schedu][0x20805a65f7f][13:52:29.073630] wlan: [26834:E:PE] 00000020: 00 00 00 00 64 00 83 b8 e7 a8 c3 02 00 1e
+08-11 19:22:29.049     0     0 E [    C3] [soft_i][0x208064e6125][13: 52:29.647092] wlan: [0:E:DP] dp_peer_find_add_id: peer 0000000000000000 ID 18 vid 1 mac 62:51:77:5b:8c:0a
+08-11 19:22:29.049     0     0 E [    C3] [soft_i][0x208064e6468][13: 52:29.647136] wlan: [0:E:DP] dp_peer_map_ast: peer 0000000000000000 ID 24 vid 1 mac 62:51:77:5b:8c:0a
+08-11 19:22:30.030  3988  3988 E simulated_ntc: proc_shell_write write invalid para
+08-11 19:22:30.768  1566  3864 E NtWifiServiceImpl: Received packet of type NtDhcpPacket
+08-11 19:22:30.772  1566  3864 E NtWifiServiceImpl: No need to write duplicate Address-hostname.
+08-11 19:22:32.518 26834 26834 E [schedu][0x2080a46aa3b][13:52:33.116014] wlan: [26834:E:PE] 00000000: d0 00 00 00 ff ff ff ff ff ff 12 74 e3 f6 26 9e
+08-11 19:22:32.518 26834 26834 E [schedu][0x2080a46abab][13:52:33.116033] wlan: [26834:E:PE] 00000010: 12 74 e3 f6 26 9e b0 8d 04 22 43 00 00 00 00 00
+08-11 19:22:32.518 26834 26834 E [schedu][0x2080a46ac00][13:52:33.116037] wlan: [26834:E:PE] 00000020: 00 00 00 00 64 00 83 b8 e7 a8 c3 02 00 1e
+08-11 19:22:32.568 26834 26834 E [schedu][0x2080a553ba0][13:52:33.165739] wlan: [26834:E:PE] 00000000: d0 00 00 00 ff ff ff ff ff ff 12 74 e3 f6 26 9e
+08-11 19:22:32.568 26834 26834 E [schedu][0x2080a553cba][13:52:33.165753] wlan: [26834:E:PE] 00000010: 12 74 e3 f6 26 9e d0 8d 04 22 43 00 00 00 00 00
+08-11 19:22:32.568 26834 26834 E [schedu][0x2080a553d0c][13:52:33.165758] wlan: [26834:E:PE] 00000020: 00 00 00 00 64 00 83 b8 e7 a8 c3 02 00 1e
+08-11 19:22:35.031  3988  3988 E simulated_ntc: proc_shell_write write invalid para
+08-11 19:22:36.614 26834 26834 E [schedu][0x2080ef6bb5b][13:52:37.212242] wlan: [26834:E:PE] 00000000: d0 00 00 00 ff ff ff ff ff ff 12 74 e3 f6 26 9e
+08-11 19:22:36.614 26834 26834 E [schedu][0x2080ef6bc6a][13:52:37.212256] wlan: [26834:E:PE] 00000010: 12 74 e3 f6 26 9e f0 8d 04 22 43 00 00 00 00 00
+08-11 19:22:36.614 26834 26834 E [schedu][0x2080ef6bcb6][13:52:37.212260] wlan: [26834:E:PE] 00000020: 00 00 00 00 64 00 83 b8 e7 a8 c3 02 00 1e
+08-11 19:22:36.686 26834 26834 E [schedu][0x2080f0bba43][13:52:37.283907] wlan: [26834:E:PE] 00000000: d0 00 00 00 ff ff ff ff ff ff 12 74 e3 f6 26 9e
+08-11 19:22:36.686 26834 26834 E [schedu][0x2080f0bbb5a][13:52:37.283922] wlan: [26834:E:PE] 00000010: 12 74 e3 f6 26 9e 10 8e 04 22 43 00 00 00 00 00
+08-11 19:22:36.686 26834 26834 E [schedu][0x2080f0bbb9f][13:52:37.283925] wlan: [26834:E:PE] 00000020: 00 00 00 00 64 00 83 b8 e7 a8 c3 02 00 1e
+08-11 19:22:40.032  3988  3988 E simulated_ntc: proc_shell_write write invalid para
+08-11 19:22:40.710 26834 26834 E [schedu][0x20813a69708][13:52:41.307758] wlan: [26834:E:PE] 00000000: d0 00 00 00 ff ff ff ff ff ff 12 74 e3 f6 26 9e
+08-11 19:22:40.710 26834 26834 E [schedu][0x20813a69826][13:52:41.307772] wlan: [26834:E:PE] 00000010: 12 74 e3 f6 26 9e 40 8e 04 22 43 00 00 00 00 00
+08-11 19:22:40.710 26834 26834 E [schedu][0x20813a6987f][13:52:41.307777] wlan: [26834:E:PE] 00000020: 00 00 00 00 64 00 83 b8 e7 a8 c3 02 00 1e
+08-11 19:22:40.765 26834 26834 E [schedu][0x20813b6c2bb][13:52:41.362954] wlan: [26834:E:PE] 00000000: d0 00 00 00 ff ff ff ff ff ff 12 74 e3 f6 26 9e
+08-11 19:22:40.765 26834 26834 E [schedu][0x20813b6c851][13:52:41.363028] wlan: [26834:E:PE] 00000010: 12 74 e3 f6 26 9e 60 8e 04 22 43 00 00 00 00 00
+08-11 19:22:40.765 26834 26834 E [schedu][0x20813b6c8aa][13:52:41.363033] wlan: [26834:E:PE] 00000020: 00 00 00 00 64 00 83 b8 e7 a8 c3 02 00 1e
+08-11 19:22:44.809  1312  1334 E ANDR-PERF-LM: MetaMeter: handleAsync() 166: AdaptLaunch Invalid Async
+08-11 19:22:44.809  1312  1334 E ANDR-PERF-LM: MetaMeter: handleAsync() 166: AdaptLaunch Invalid Async
+08-11 19:22:44.809  1566  4830 E ANDR-PERF-JNI: com_qualcomm_qtiperformance_native_perf_io_prefetch_start
+08-11 19:22:44.811  1284  4289 E ANDR-IOP: io prefetch is disabled
+08-11 19:22:44.840  1312  1334 E ANDR-PERF-LM: MetaMeter: handleAsync() 166: AdaptLaunch Invalid Async
+08-11 19:22:44.906  1312  1334 E ANDR-PERF-LM: MetaMeter: handleAsync() 166: AdaptLaunch Invalid Async
+08-11 19:22:44.805 26834 26834 E [schedu][0x20818566ebc][13:52:45.403220] wlan: [26834:E:PE] 00000000: d0 00 00 00 ff ff ff ff ff ff 12 74 e3 f6 26 9e
+08-11 19:22:44.805 26834 26834 E [schedu][0x20818566f80][13:52:45.403230] wlan: [26834:E:PE] 00000010: 12 74 e3 f6 26 9e 80 8e 04 22 43 00 00 00 00 00
+08-11 19:22:44.805 26834 26834 E [schedu][0x20818566fba][13:52:45.403233] wlan: [26834:E:PE] 00000020: 00 00 00 00 64 00 83 b8 e7 a8 c3 02 00 1e
+08-11 19:22:44.820 26834 26834 E [schedu][0x208185ac724][13:52:45.418052] wlan: [26834:E:PE] 00000000: d0 00 00 00 ff ff ff ff ff ff 12 74 e3 f6 26 9e
+08-11 19:22:44.820 26834 26834 E [schedu][0x208185ac7f1][13:52:45.418063] wlan: [26834:E:PE] 00000010: 12 74 e3 f6 26 9e a0 8e 04 22 43 00 00 00 00 00
+08-11 19:22:44.820 26834 26834 E [schedu][0x208185ac828][13:52:45.418066] wlan: [26834:E:PE] 00000020: 00 00 00 00 64 00 83 b8 e7 a8 c3 02 00 1e
+08-11 19:22:45.029  3988  3988 E simulated_ntc: proc_shell_write write invalid para
+08-11 19:22:45.832  1312  4272 E ANDR-PERF-LM: VmRssMeter:: start() 453: Could not find pid, can not collect vmrss data
+08-11 19:22:45.832  1312  4271 E ANDR-PERF-LM: VmRssMeter:: start() 453: Could not find pid, can not collect vmrss data
+08-11 19:22:45.832  1312  4272 E ANDR-PERF-LM: AdaptiveLaunch: writeToDataBase() 64: Meter aborted or could not get meter data for this run
+08-11 19:22:47.219  1190  1314 E qdgralloc: GetGpuPixelFormat: No map for format: 0x38
+08-11 19:22:47.221  1190  1314 E AdrenoUtils: <validate_memory_layout_input_parmas:1970>: Unknown Format 0
+08-11 19:22:47.221  1190  1314 E AdrenoUtils: <adreno_init_memory_layout:4720>: Memory Layout input parameter validation failed!
+08-11 19:22:47.221 31647 31670 E GraphicBufferAllocator: Failed to allocate (1 x 1) layerCount 1 format 56 usage 100: 7
+08-11 19:22:47.221 31647 31670 E AHardwareBuffer: GraphicBuffer(w=1, h=1, lc=1) failed (Unknown error -7), handle=0x0
+--------- beginning of crash
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: FATAL EXCEPTION: main
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: Process: com.storagerush.app, PID: 31647
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: java.lang.NoSuchMethodError: No static method HorizontalPager-xYaah8o(Landroidx/compose/foundation/pager/PagerState;Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/pager/PageSize;IFLandroidx/compose/ui/Alignment$Vertical;Landroidx/compose/foundation/gestures/snapping/SnapFlingBehavior;ZZLkotlin/jvm/functions/Function1;Landroidx/compose/ui/input/nestedscroll/NestedScrollConnection;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;III)V in class Landroidx/compose/foundation/pager/PagerKt; or its super classes (declaration of 'androidx.compose.foundation.pager.PagerKt' appears in /data/app/~~1fobPtyer-5ib6B3zpt8Vg==/com.storagerush.app--JGrWI_cBCev1KuYWQt1Dg==/base.apk)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at com.storagerush.app.ui.tutorial.TutorialGuideScreenKt.TutorialGuideScreen(TutorialGuideScreen.kt:180)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at com.storagerush.app.MainActivity.onCreate$lambda$66$lambda$65(MainActivity.kt:285)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at com.storagerush.app.MainActivity$$ExternalSyntheticLambda1.invoke(D8$$SyntheticClass:0)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:121)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl$invoke$1.invoke(ComposableLambda.kt:122)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl$invoke$1.invoke(ComposableLambda.kt:122)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at androidx.compose.runtime.RecomposeScopeImpl.compose(RecomposeScopeImpl.kt:196)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.recomposeToGroupEnd(Composer.kt:2895)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.skipCurrentGroup(Composer.kt:3231)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.doCompose-aFTiNEg(Composer.kt:3855)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.recompose-aFTiNEg$runtime(Composer.kt:3779)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at androidx.compose.runtime.CompositionImpl.recompose(Composition.kt:1075)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at androidx.compose.runtime.Recomposer.performRecompose(Recomposer.kt:1364)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at androidx.compose.runtime.Recomposer.access$performRecompose(Recomposer.kt:156)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at androidx.compose.runtime.Recomposer$runRecomposeAndApplyChanges$2.invokeSuspend$lambda$22(Recomposer.kt:627)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at androidx.compose.runtime.Recomposer$runRecomposeAndApplyChanges$2$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiFrameClock$withFrameNanos$2$callback$1.doFrame(AndroidUiFrameClock.android.kt:39)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiDispatcher.performFrameDispatch(AndroidUiDispatcher.android.kt:108)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiDispatcher.access$performFrameDispatch(AndroidUiDispatcher.android.kt:41)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiDispatcher$dispatchCallback$1.doFrame(AndroidUiDispatcher.android.kt:69)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1461)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1472)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at android.view.Choreographer.doCallbacks(Choreographer.java:1064)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at android.view.Choreographer.doFrame(Choreographer.java:989)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at android.view.Choreographer$FrameDisplayEventReceiver.run(Choreographer.java:1439)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at android.os.Handler.handleCallback(Handler.java:959)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:100)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:267)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:371)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:8837)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:598)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:896)
+08-11 19:22:48.116 31647 31647 E AndroidRuntime: 	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [androidx.compose.runtime.PausableMonotonicFrameClock@1ab6780, androidx.compose.ui.platform.MotionDurationScaleImpl@c8441b9, StandaloneCoroutine{Cancelling}@e6c89fe, AndroidUiDispatcher@eb6555f]
+08-11 19:22:48.596  1369  1369 E BpTransactionCompletedListener: Failed to transact (-32)
+08-11 19:22:48.729   773   773 E tombstoned: Traces for pid 1566 written to: trace_06_1566_2026-08-11-19-22-48
+08-11 19:22:49.181  1312  4271 E ANDR-PERF-LM: VmRssMeter:: start() 453: Could not find pid, can not collect vmrss data
+08-11 19:22:49.184  1312  4272 E ANDR-PERF-LM: VmRssMeter:: start() 453: Could not find pid, can not collect vmrss data
+08-11 19:22:49.184  1312  4272 E ANDR-PERF-LM: AdaptiveLaunch: writeToDataBase() 64: Meter aborted or could not get meter data for this run
+08-11 19:22:49.322  1312  1334 E ANDR-PERF-LM: MetaMeter: handleAsync() 166: AdaptLaunch Invalid Async
+08-11 19:22:49.322  1566 12038 E ANDR-PERF-JNI: com_qualcomm_qtiperformance_native_perf_io_prefetch_start
+08-11 19:22:49.322  1312  1334 E ANDR-PERF-LM: MetaMeter: handleAsync() 166: AdaptLaunch Invalid Async
+08-11 19:22:49.324  1284  4289 E ANDR-IOP: io prefetch is disabled
+08-11 19:22:49.351  1312  1334 E ANDR-PERF-LM: MetaMeter: handleAsync() 166: AdaptLaunch Invalid Async
+08-11 19:22:49.409  1312  1334 E ANDR-PERF-LM: MetaMeter: handleAsync() 166: AdaptLaunch Invalid Async
+08-11 19:22:48.902 26834 26834 E [schedu][0x2081d06a7a9][13:52:49.499979] wlan: [26834:E:PE] 00000000: d0 00 00 00 ff ff ff ff ff ff 12 74 e3 f6 26 9e
+08-11 19:22:48.902 26834 26834 E [schedu][0x2081d06a9f8][13:52:49.500010] wlan: [26834:E:PE] 00000010: 12 74 e3 f6 26 9e c0 8e 04 22 43 00 00 00 00 00
+08-11 19:22:48.902 26834 26834 E [schedu][0x2081d06aa9b][13:52:49.500019] wlan: [26834:E:PE] 00000020: 00 00 00 00 64 00 83 b8 e7 a8 c3 02 00 1e
+08-11 19:22:48.964 26834 26834 E [schedu][0x2081d18e3aa][13:52:49.562219] wlan: [26834:E:PE] 00000000: d0 00 00 00 ff ff ff ff ff ff 12 74 e3 f6 26 9e
+08-11 19:22:48.964 26834 26834 E [schedu][0x2081d18e463][13:52:49.562229] wlan: [26834:E:PE] 00000010: 12 74 e3 f6 26 9e e0 8e 04 22 43 00 00 00 00 00
+08-11 19:22:48.964 26834 26834 E [schedu][0x2081d18e4a2][13:52:49.562232] wlan: [26834:E:PE] 00000020: 00 00 00 00 64 00 83 b8 e7 a8 c3 02 00 1e
+08-11 19:22:49.938  7255 10871 E PKLLog  : restartService:1
+08-11 19:22:49.939  7255 10871 E PKLLog  : invoke CounterServiceService
+08-11 19:22:50.351  1312  4271 E ANDR-PERF-LM: VmRssMeter:: start() 453: Could not find pid, can not collect vmrss data
+08-11 19:22:50.352  1312  4272 E ANDR-PERF-LM: VmRssMeter:: start() 453: Could not find pid, can not collect vmrss data
+08-11 19:22:50.352  1312  4272 E ANDR-PERF-LM: AdaptiveLaunch: writeToDataBase() 64: Meter aborted or could not get meter data for this run
+08-11 19:22:50.029  3988  3988 E simulated_ntc: proc_shell_write write invalid para
+08-11 19:22:50.902  1126  1237 E minksocket: MinkIPC_QRTR_Service: client with node 0 port 14b went down
+08-11 19:22:51.560  1190  1314 E qdgralloc: GetGpuPixelFormat: No map for format: 0x38
+08-11 19:22:51.560  1190  1314 E AdrenoUtils: <validate_memory_layout_input_parmas:1970>: Unknown Format 0
+08-11 19:22:51.560  1190  1314 E AdrenoUtils: <adreno_init_memory_layout:4720>: Memory Layout input parameter validation failed!
+08-11 19:22:51.560 31747 31773 E GraphicBufferAllocator: Failed to allocate (1 x 1) layerCount 1 format 56 usage 100: 7
+08-11 19:22:51.560 31747 31773 E AHardwareBuffer: GraphicBuffer(w=1, h=1, lc=1) failed (Unknown error -7), handle=0x0
+08-11 19:22:51.819 26734 26752 E artd    : Unable to resolve path '/data/app/~~dKVXvFLZ4OVMRxo8BCyCuw==/com.phonepe.app-T-fqaylFNUF5TdfrubMInw==/base.apk': No such file or directory
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: FATAL EXCEPTION: main
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: Process: com.storagerush.app, PID: 31747
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: java.lang.NoSuchMethodError: No static method HorizontalPager-xYaah8o(Landroidx/compose/foundation/pager/PagerState;Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/pager/PageSize;IFLandroidx/compose/ui/Alignment$Vertical;Landroidx/compose/foundation/gestures/snapping/SnapFlingBehavior;ZZLkotlin/jvm/functions/Function1;Landroidx/compose/ui/input/nestedscroll/NestedScrollConnection;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;III)V in class Landroidx/compose/foundation/pager/PagerKt; or its super classes (declaration of 'androidx.compose.foundation.pager.PagerKt' appears in /data/app/~~1fobPtyer-5ib6B3zpt8Vg==/com.storagerush.app--JGrWI_cBCev1KuYWQt1Dg==/base.apk)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at com.storagerush.app.ui.tutorial.TutorialGuideScreenKt.TutorialGuideScreen(TutorialGuideScreen.kt:180)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at com.storagerush.app.MainActivity.onCreate$lambda$66$lambda$65(MainActivity.kt:285)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at com.storagerush.app.MainActivity$$ExternalSyntheticLambda1.invoke(D8$$SyntheticClass:0)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:121)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl$invoke$1.invoke(ComposableLambda.kt:122)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl$invoke$1.invoke(ComposableLambda.kt:122)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at androidx.compose.runtime.RecomposeScopeImpl.compose(RecomposeScopeImpl.kt:196)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.recomposeToGroupEnd(Composer.kt:2895)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.skipCurrentGroup(Composer.kt:3231)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.doCompose-aFTiNEg(Composer.kt:3855)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.recompose-aFTiNEg$runtime(Composer.kt:3779)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at androidx.compose.runtime.CompositionImpl.recompose(Composition.kt:1075)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at androidx.compose.runtime.Recomposer.performRecompose(Recomposer.kt:1364)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at androidx.compose.runtime.Recomposer.access$performRecompose(Recomposer.kt:156)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at androidx.compose.runtime.Recomposer$runRecomposeAndApplyChanges$2.invokeSuspend$lambda$22(Recomposer.kt:627)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at androidx.compose.runtime.Recomposer$runRecomposeAndApplyChanges$2$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiFrameClock$withFrameNanos$2$callback$1.doFrame(AndroidUiFrameClock.android.kt:39)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiDispatcher.performFrameDispatch(AndroidUiDispatcher.android.kt:108)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiDispatcher.access$performFrameDispatch(AndroidUiDispatcher.android.kt:41)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiDispatcher$dispatchCallback$1.doFrame(AndroidUiDispatcher.android.kt:69)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1461)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1472)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at android.view.Choreographer.doCallbacks(Choreographer.java:1064)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at android.view.Choreographer.doFrame(Choreographer.java:989)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at android.view.Choreographer$FrameDisplayEventReceiver.run(Choreographer.java:1439)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at android.os.Handler.handleCallback(Handler.java:959)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:100)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:267)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:371)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:8837)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:598)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:896)
+08-11 19:22:51.886 31747 31747 E AndroidRuntime: 	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [androidx.compose.runtime.PausableMonotonicFrameClock@1ab6780, androidx.compose.ui.platform.MotionDurationScaleImpl@c8441b9, StandaloneCoroutine{Cancelling}@e6c89fe, AndroidUiDispatcher@eb6555f]
+08-11 19:22:53.411  1312  4271 E ANDR-PERF-LM: VmRssMeter:: start() 453: Could not find pid, can not collect vmrss data
+08-11 19:22:53.411  1312  4272 E ANDR-PERF-LM: VmRssMeter:: start() 453: Could not find pid, can not collect vmrss data
+08-11 19:22:53.411  1312  4272 E ANDR-PERF-LM: AdaptiveLaunch: writeToDataBase() 64: Meter aborted or could not get meter data for this run
+08-11 19:22:52.997 26834 26834 E [schedu][0x20821b675b7][13:52:53.595313] wlan: [26834:E:PE] 00000000: d0 00 00 00 ff ff ff ff ff ff 12 74 e3 f6 26 9e
+08-11 19:22:52.998 26834 26834 E [schedu][0x20821b676c4][13:52:53.595327] wlan: [26834:E:PE] 00000010: 12 74 e3 f6 26 9e 00 8f 04 22 43 00 00 00 00 00
+08-11 19:22:52.998 26834 26834 E [schedu][0x20821b67934][13:52:53.595360] wlan: [26834:E:PE] 00000020: 00 00 00 00 64 00 83 b8 e7 a8 c3 02 00 1e
+08-11 19:22:53.061 26834 26834 E [schedu][0x20821c91858][13:52:53.658922] wlan: [26834:E:PE] 00000000: d0 00 00 00 ff ff ff ff ff ff 12 74 e3 f6 26 9e
+08-11 19:22:53.061 26834 26834 E [schedu][0x20821c9192f][13:52:53.658933] wlan: [26834:E:PE] 00000010: 12 74 e3 f6 26 9e 20 8f 04 22 43 00 00 00 00 00
+08-11 19:22:53.061 26834 26834 E [schedu][0x20821c9197d][13:52:53.658937] wlan: [26834:E:PE] 00000020: 00 00 00 00 64 00 83 b8 e7 a8 c3 02 00 1e
+08-11 19:22:53.668  1369  1369 E BpTransactionCompletedListener: Failed to transact (-32)
+08-11 19:22:55.029  3988  3988 E simulated_ntc: proc_shell_write write invalid para
+08-11 19:22:55.653   773   773 E tombstoned: Traces for pid 1566 written to: trace_07_1566_2026-08-11-19-22-55
+08-11 19:22:56.315 26734 26753 E artd    : Unable to resolve path '/data/app/~~dKVXvFLZ4OVMRxo8BCyCuw==/com.phonepe.app-T-fqaylFNUF5TdfrubMInw==/base.apk': No such file or directory

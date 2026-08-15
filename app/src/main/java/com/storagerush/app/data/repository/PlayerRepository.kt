@@ -137,6 +137,54 @@ class PlayerRepository(private val context: Context) {
     }
 
     /**
+     * LOGIN RESTORE: overwrites local progression with values pulled from
+     * the cloud player record, for when a returning user logs back in on
+     * a fresh install (local DataStore is empty/default at that point,
+     * nothing to lose). Unlike recordCleanup(), this is a direct
+     * overwrite — no XP math, no streak calculation, no level-up rollover,
+     * since these values already represent the correct final state as of
+     * the last successful cloud sync.
+     */
+    suspend fun restoreFromCloud(
+        level: Int,
+        currentXp: Long,
+        totalCareerXp: Long,
+        weeklyStreak: Int,
+        bestStreak: Int,
+        lastCleanupTimestamp: Long
+    ) {
+        dataStore.edit { prefs ->
+            prefs[LEVEL_KEY] = level
+            prefs[CURRENT_XP_KEY] = currentXp
+            prefs[TOTAL_CAREER_XP_KEY] = totalCareerXp
+            prefs[WEEKLY_STREAK_KEY] = weeklyStreak
+            prefs[BEST_STREAK_KEY] = bestStreak
+            prefs[LAST_CLEANUP_TIMESTAMP_KEY] = lastCleanupTimestamp
+        }
+    }
+
+    /**
+     * LOGOUT: overwrites local progression back to fresh new-player
+     * defaults. Called when a user logs out of a linked account — the
+     * level/XP/streak they'd built up belonged to that cloud identity,
+     * so once unlinked, local state should read like a brand new
+     * install rather than continuing to show someone else's numbers.
+     * Same direct-overwrite shape as restoreFromCloud(), just with
+     * PlayerState()'s defaults instead of cloud values.
+     */
+    suspend fun resetToNewPlayer() {
+        val defaults = PlayerState()
+        dataStore.edit { prefs ->
+            prefs[LEVEL_KEY] = defaults.level
+            prefs[CURRENT_XP_KEY] = defaults.currentXp
+            prefs[TOTAL_CAREER_XP_KEY] = defaults.totalCareerXp
+            prefs[WEEKLY_STREAK_KEY] = defaults.weeklyStreak
+            prefs[BEST_STREAK_KEY] = defaults.bestStreak
+            prefs[LAST_CLEANUP_TIMESTAMP_KEY] = defaults.lastCleanupTimestamp
+        }
+    }
+
+    /**
      * Weekly streak logic, compared by IST week number:
      * - No prior cleanup ever -> streak starts at 1
      * - Same week as last cleanup -> streak unchanged (already counted)

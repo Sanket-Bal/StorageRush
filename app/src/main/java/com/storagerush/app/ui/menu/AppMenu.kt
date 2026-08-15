@@ -25,6 +25,11 @@ fun AppMenu(
     onStatsClick: () -> Unit = {},
     onImagesClick: () -> Unit = {},
     onVideosClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
+    isAccountLinked: Boolean = false,
+    linkedEmail: String? = null,
+    onAccountLinkClick: () -> Unit = {},
+    onLogoutClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val expanded = remember { mutableStateOf(false) }
@@ -110,6 +115,66 @@ fun AppMenu(
                     onStatsClick()
                 }
             )
+
+            HorizontalDivider()
+
+            // Profile option — opens the Stats screen on its Profile tab
+            // (formerly "Progress"). Placed just above the account-link
+            // section since editing your nickname there is closely tied
+            // to having a cloud profile.
+            DropdownMenuItem(
+                text = {
+                    Text(
+                        text = "👤 Profile",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                onClick = {
+                    expanded.value = false
+                    onProfileClick()
+                }
+            )
+
+            HorizontalDivider()
+
+            // Account link status — flips live between Sign Up/Log In and
+            // Log Out based on isAccountLinked (see UserPreferencesRepository
+            // .isAccountLinkedFlow). Available even after a user declined
+            // linking during first-launch onboarding.
+            if (isAccountLinked) {
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = if (linkedEmail != null) {
+                                "🔓 Log Out ($linkedEmail)"
+                            } else {
+                                "🔓 Log Out"
+                            },
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    },
+                    onClick = {
+                        expanded.value = false
+                        onLogoutClick()
+                    }
+                )
+            } else {
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = "🔐 Sign Up / Log In",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    },
+                    onClick = {
+                        expanded.value = false
+                        onAccountLinkClick()
+                    }
+                )
+            }
         }
     }
 }

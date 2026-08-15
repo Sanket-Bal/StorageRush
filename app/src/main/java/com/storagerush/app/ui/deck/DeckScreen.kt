@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.storagerush.app.data.gamification.Achievement
 import com.storagerush.app.data.model.MediaItem
 import com.storagerush.app.ui.components.HelpButton
 import com.storagerush.app.ui.menu.AppMenu
@@ -35,6 +36,7 @@ import com.storagerush.app.viewmodel.DeckViewModel
 import com.storagerush.app.viewmodel.PlayerViewModel
 import com.storagerush.app.viewmodel.TrashBinViewModel
 import androidx.activity.compose.BackHandler
+import kotlinx.coroutines.delay
 
 @Composable
 fun DeckScreen(
@@ -45,9 +47,14 @@ fun DeckScreen(
     onNavigateBack: () -> Unit = {},
     onNavigateToTrash: () -> Unit = {},
     onNavigateToStats: () -> Unit = {},
+    onNavigateToProfile: () -> Unit = {},
     onNavigateToImages: () -> Unit = {},
     onNavigateToVideos: () -> Unit = {},
-    onOpenTutorial: () -> Unit = {}
+    onOpenTutorial: () -> Unit = {},
+    isAccountLinked: Boolean = false,
+    linkedEmail: String? = null,
+    onAccountLinkClick: () -> Unit = {},
+    onLogoutClick: () -> Unit = {}
 ) {
     val deckState = viewModel.deckState.collectAsState().value
     val playerState = playerViewModel?.playerState?.collectAsState()?.value
@@ -65,6 +72,13 @@ fun DeckScreen(
     // celebration.
     var levelUpInfo by remember { mutableStateOf<LevelUpInfo?>(null) }
 
+    // Achievement unlock toasts (Phase 2 gamification) — a simple FIFO
+    // queue plus "currently showing" slot. Multiple badges can unlock in
+    // one deletion (e.g. crossing a storage AND a level threshold at
+    // once), so this shows them one at a time rather than all together.
+    var achievementQueue by remember { mutableStateOf<List<Achievement>>(emptyList()) }
+    var currentAchievementToast by remember { mutableStateOf<Achievement?>(null) }
+
     // Load the appropriate deck on first composition
     LaunchedEffect(deckType) {
         viewModel.loadDeck(deckType)
@@ -74,6 +88,13 @@ fun DeckScreen(
     LaunchedEffect(trashViewModel) {
         if (trashViewModel != null) {
             val (freedBytes, itemCount) = trashViewModel.getLastDeletionStats()
+
+            // Read this BEFORE resetLastSessionStats() below, which clears
+            // it asynchronously (its own viewModelScope.launch) — reading
+            // after that call would race against the reset and could
+            // sometimes silently miss an unlock.
+            val newlyUnlocked = trashViewModel.getNewlyUnlockedAchievements()
+
             if (freedBytes > 0L && itemCount > 0) {
                 val readableSize = when {
                     freedBytes < 1024 -> "$freedBytes B"
@@ -100,6 +121,31 @@ fun DeckScreen(
                 // Reset stats after showing
                 trashViewModel.resetLastSessionStats()
             }
+
+            // Achievement toasts are independent of the level-up/snackbar
+            // branch above — a deletion can both level the player up AND
+            // unlock a badge at once, so this isn't an "else".
+            if (newlyUnlocked.isNotEmpty()) {
+                achievementQueue = achievementQueue + newlyUnlocked
+            }
+        }
+    }
+
+    // Advance the achievement toast queue: whenever nothing is currently
+    // showing and the queue has something waiting, pop the next one.
+    LaunchedEffect(achievementQueue, currentAchievementToast) {
+        if (currentAchievementToast == null && achievementQueue.isNotEmpty()) {
+            currentAchievementToast = achievementQueue.first()
+            achievementQueue = achievementQueue.drop(1)
+        }
+    }
+
+    // Auto-dismiss whatever's currently showing after a couple seconds,
+    // which in turn lets the effect above advance to the next queued one.
+    LaunchedEffect(currentAchievementToast) {
+        if (currentAchievementToast != null) {
+            delay(2500)
+            currentAchievementToast = null
         }
     }
 
@@ -122,9 +168,14 @@ fun DeckScreen(
                 deckName = deckState.deckType,
                 onTrashBinClick = onNavigateToTrash,
                 onStatsClick = onNavigateToStats,
+                onProfileClick = onNavigateToProfile,
                 onImagesClick = onNavigateToImages,
                 onVideosClick = onNavigateToVideos,
-                onHelpClick = onOpenTutorial
+                onHelpClick = onOpenTutorial,
+                isAccountLinked = isAccountLinked,
+                linkedEmail = linkedEmail,
+                onAccountLinkClick = onAccountLinkClick,
+                onLogoutClick = onLogoutClick
             )
 
             // Gamification progress card (Level + streak + XP) — sits
@@ -246,6 +297,16 @@ fun DeckScreen(
             }
         )
 
+        // Achievement unlock toast (Phase 2 gamification) — top-anchored,
+        // deliberately separate from the bottom SnackbarHost above so it
+        // doesn't compete with deletion-stats messages for the same slot.
+        // The root Box already has statusBarsPadding() applied, so no
+        // extra inset padding is needed here.
+        AchievementToast(
+            achievement = currentAchievementToast,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
+
         // Full-screen video overlay (Phase B) — only composed while a video
         // is actually selected, so its ExoPlayer is created/released exactly
         // in sync with the overlay being open/closed (see VideoOverlay.kt's
@@ -288,9 +349,14 @@ private fun TopBar(
     deckName: String,
     onTrashBinClick: () -> Unit,
     onStatsClick: () -> Unit,
+    onProfileClick: () -> Unit = {},
     onImagesClick: () -> Unit,
     onVideosClick: () -> Unit,
     onHelpClick: () -> Unit,
+    isAccountLinked: Boolean = false,
+    linkedEmail: String? = null,
+    onAccountLinkClick: () -> Unit = {},
+    onLogoutClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -303,8 +369,13 @@ private fun TopBar(
         AppMenu(
             onTrashBinClick = onTrashBinClick,
             onStatsClick = onStatsClick,
+            onProfileClick = onProfileClick,
             onImagesClick = onImagesClick,
             onVideosClick = onVideosClick,
+            isAccountLinked = isAccountLinked,
+            linkedEmail = linkedEmail,
+            onAccountLinkClick = onAccountLinkClick,
+            onLogoutClick = onLogoutClick,
             modifier = Modifier.align(Alignment.CenterStart)
         )
 

@@ -9,7 +9,9 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.storagerush.app.ui.deck.DeckType
 import com.storagerush.app.ui.deck.VideoFilterType
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -35,6 +37,16 @@ class UserPreferencesRepository(private val context: Context) {
     private val dataStore = context.userPreferencesDataStore
     private val LAST_DECK_SELECTION_KEY = stringPreferencesKey("last_deck_selection_json")
     private val HAS_SEEN_TUTORIAL_KEY = booleanPreferencesKey("has_seen_tutorial")
+
+    // Phase A: cloud sync / nickname setup tracking
+    private val HAS_COMPLETED_CLOUD_SETUP_KEY = booleanPreferencesKey("has_completed_cloud_setup")
+    private val SAVED_NICKNAME_KEY = stringPreferencesKey("saved_nickname")
+
+    // Account linking (email OTP): separate from cloud setup above, since
+    // this is optional and dismissible — a player can have completed
+    // cloud setup (anonymous + nickname) without ever linking an account.
+    private val HAS_LINKED_ACCOUNT_KEY = booleanPreferencesKey("has_linked_account")
+    private val LINKED_EMAIL_KEY = stringPreferencesKey("linked_email")
 
     /**
      * Whether the user has completed the mandatory first-launch tutorial.
@@ -132,6 +144,127 @@ class UserPreferencesRepository(private val context: Context) {
     suspend fun clearLastDeckSelection() {
         dataStore.edit { preferences ->
             preferences.remove(LAST_DECK_SELECTION_KEY)
+        }
+    }
+
+    // ---------------------------------------------------------------
+    // Phase A: Cloud sync / nickname setup
+    // ---------------------------------------------------------------
+
+    /**
+     * Whether the user has completed the one-time nickname dialog and
+     * cloud player record creation. Used to gate showing the nickname
+     * dialog again on subsequent launches, and to gate whether
+     * TrashBinViewModel attempts to push progress to Supabase at all —
+     * so nothing syncs to the cloud until the user has explicitly set
+     * up their leaderboard identity.
+     */
+    suspend fun hasCompletedCloudSetup(): Boolean {
+        val preferences = dataStore.data.first()
+        return preferences[HAS_COMPLETED_CLOUD_SETUP_KEY] ?: false
+    }
+
+    /**
+     * Marks cloud setup as complete and caches the chosen nickname
+     * locally (so it can be displayed instantly in UI without a network
+     * round-trip). Call this right after CloudSyncRepository successfully
+     * creates the player record.
+     */
+    suspend fun markCloudSetupComplete(nickname: String) {
+        dataStore.edit { preferences ->
+            preferences[HAS_COMPLETED_CLOUD_SETUP_KEY] = true
+            preferences[SAVED_NICKNAME_KEY] = nickname
+        }
+    }
+
+    /** Returns the locally cached nickname, or null if cloud setup hasn't happened yet. */
+    suspend fun getSavedNickname(): String? {
+        val preferences = dataStore.data.first()
+        return preferences[SAVED_NICKNAME_KEY]
+    }
+
+    /** Reactive locally cached nickname — used by the Profile tab to display and edit it live. */
+    val savedNicknameFlow: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[SAVED_NICKNAME_KEY]
+    }
+
+    /** Reactive cloud-setup status — used by the Profile tab to know whether nickname editing applies. */
+    val hasCompletedCloudSetupFlow: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[HAS_COMPLETED_CLOUD_SETUP_KEY] ?: false
+    }
+
+    /**
+     * Updates just the cached nickname. Distinct from markCloudSetupComplete()
+     * above — this is for editing an *existing* profile's nickname (Profile
+     * tab), so it deliberately leaves has_completed_cloud_setup untouched
+     * rather than re-marking first-time setup.
+     */
+    suspend fun updateSavedNickname(nickname: String) {
+        dataStore.edit { preferences ->
+            preferences[SAVED_NICKNAME_KEY] = nickname
+        }
+    }
+
+    // ---------------------------------------------------------------
+    // Account linking (email OTP Sign Up / Log In)
+    // ---------------------------------------------------------------
+
+    /**
+     * Whether this player has linked a real email (via Sign Up) or logged
+     * into an existing linked account (via Log In). Gates whether the
+     * Friends/Global leaderboard tabs prompt for account linking before
+     * granting access — local-only stats and the Progress/Achievements
+     * tabs never require this.
+     */
+    suspend fun hasLinkedAccount(): Boolean {
+        val preferences = dataStore.data.first()
+        return preferences[HAS_LINKED_ACCOUNT_KEY] ?: false
+    }
+
+    /** Marks the account as linked and caches the email for display purposes. */
+    suspend fun markAccountLinked(email: String) {
+        dataStore.edit { preferences ->
+            preferences[HAS_LINKED_ACCOUNT_KEY] = true
+            preferences[LINKED_EMAIL_KEY] = email
+        }
+    }
+
+    /** Returns the linked email, or null if no account has been linked. */
+    suspend fun getLinkedEmail(): String? {
+        val preferences = dataStore.data.first()
+        return preferences[LINKED_EMAIL_KEY]
+    }
+
+    /**
+     * Reactive "is linked" state, so the hamburger menu can flip live
+     * between "Sign Up / Log In" and "Log Out" without needing a manual
+     * re-read after every account-link/logout action.
+     */
+    val isAccountLinkedFlow: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[HAS_LINKED_ACCOUNT_KEY] ?: false
+    }
+
+    /** Reactive linked email, for showing "Logged in as x@y.com" in the menu. */
+    val linkedEmailFlow: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[LINKED_EMAIL_KEY]
+    }
+
+    /**
+     * Reverses markAccountLinked() on logout. Also resets
+     * has_completed_cloud_setup — that flag is what gates
+     * syncProgressToCloud(), so after logout syncing correctly no-ops
+     * instead of failing against a dead session — and saved_nickname,
+     * since that nickname belonged to the account being unlinked. Local
+     * progress numbers (level/XP/streak/stats) are reset separately by
+     * PlayerRepository.resetToNewPlayer() / StatsRepository.clearAllStats(),
+     * called alongside this from the same logout flow.
+     */
+    suspend fun clearAccountLink() {
+        dataStore.edit { preferences ->
+            preferences[HAS_LINKED_ACCOUNT_KEY] = false
+            preferences.remove(LINKED_EMAIL_KEY)
+            preferences[HAS_COMPLETED_CLOUD_SETUP_KEY] = false
+            preferences.remove(SAVED_NICKNAME_KEY)
         }
     }
 }

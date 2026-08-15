@@ -1,12 +1,30 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     kotlin("plugin.serialization") version "2.2.10"
 }
 
+// Load local.properties manually (this is a plain Properties file, not
+// Gradle's default one, so it needs an explicit read) — this is what lets
+// SUPABASE_URL/SUPABASE_ANON_KEY live outside version control while still
+// being available at build time.
+//
+// NOTE: must import java.util.Properties explicitly (see above) rather
+// than writing java.util.Properties() inline — AGP injects a Project
+// extension literally named `java` into this script's scope, which
+// shadows the `java` package name and breaks the fully-qualified path.
+val localProperties = Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.inputStream().use { stream -> load(stream) }
+    }
+}
+
 android {
     namespace = "com.storagerush.app"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.storagerush.app"
@@ -18,6 +36,17 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        // Missing values fail the build loudly rather than silently
+        // shipping a blank/broken Supabase client — better to catch a
+        // missing local.properties entry at build time than at runtime.
+        val supabaseUrl = localProperties.getProperty("supabase.url")
+            ?: error("Missing supabase.url in local.properties")
+        val supabaseAnonKey = localProperties.getProperty("supabase.anonKey")
+            ?: error("Missing supabase.anonKey in local.properties")
+
+        buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKey\"")
     }
 
     compileOptions {
@@ -28,23 +57,24 @@ android {
 
     buildFeatures {
         compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
+        buildConfig = true
     }
 }
 
 dependencies {
     // Enable Java 8+ APIs (java.time) on minSdk 24
+    // Also required by supabase-kt, which targets minSdk 26 —
+    // desugaring is what lets it run down to our minSdk 24.
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
     // Standard Jetpack Compose & Core Dependencies
-    implementation(platform("androidx.compose:compose-bom:2024.02.01"))
+    implementation(platform("androidx.compose:compose-bom:2026.06.01"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-core")
+    implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.activity:activity-compose:1.8.2")
 
@@ -71,11 +101,20 @@ dependencies {
     // Kotlin Serialization (for trash persistence)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
+    // --- Supabase (Phase A/B: cloud sync + friends leaderboard) ---
+    // BOM aligns versions across all supabase-kt modules below
+    implementation(platform("io.github.jan-tennert.supabase:bom:3.5.0"))
+    implementation("io.github.jan-tennert.supabase:postgrest-kt")
+    implementation("io.github.jan-tennert.supabase:auth-kt")
+
+    // Ktor HTTP engine for Android — required by supabase-kt to make network calls
+    implementation("io.ktor:ktor-client-android:3.1.1")
+
     // Testing
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.02.01"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2026.06.01"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
