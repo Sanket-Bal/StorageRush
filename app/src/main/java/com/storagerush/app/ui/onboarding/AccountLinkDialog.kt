@@ -56,6 +56,45 @@ private enum class AccountLinkMode {
 }
 
 /**
+ * Derives a best-effort nickname from an email's local part, used only for
+ * the Log In edge case below where a verified identity has no player
+ * record yet. Not availability-checked up front — see the retry-with-
+ * suffix handling at the call site for the collision case.
+ */
+private fun fallbackNicknameFromEmail(email: String): String {
+    val local = email.substringBefore("@").filter { it.isLetterOrDigit() }.take(16)
+    return local.ifBlank { "player" }
+}
+
+/**
+ * Supabase's RestException.message bundles the full request/response dump
+ * (URL, headers, HTTP method) — useful in Logcat (see CloudSyncRepository's
+ * Log.e calls), unusable as UI text. Every send-code error shown in this
+ * dialog routes through this instead of ever displaying e.message directly.
+ * The two branches below map the errors that actually happen in practice:
+ * re-signing-up with an already-registered email, and logging in with an
+ * email that's never signed up.
+ */
+private fun friendlySendCodeError(e: Throwable, mode: AccountLinkMode): String {
+    val raw = e.message.orEmpty()
+    return when {
+        raw.contains("email_exists", ignoreCase = true) ||
+            raw.contains("already been registered", ignoreCase = true) ->
+            "That email is already linked to an account. Try Log In instead."
+
+        raw.contains("otp_disabled", ignoreCase = true) ||
+            raw.contains("Signups not allowed", ignoreCase = true) ->
+            "No account found with that email. Try Sign Up instead."
+
+        mode == AccountLinkMode.SIGN_UP ->
+            "Couldn't send the sign-up code. Please check your connection and try again."
+
+        else ->
+            "Couldn't send the login code. Please check your connection and try again."
+    }
+}
+
+/**
  * Shared restore step used by both the immediate (onboarding) and
  * confirmed (menu, after the user accepts the overwrite warning) Log In
  * paths, so the actual DataStore-writing logic only exists once.
@@ -158,7 +197,7 @@ fun AccountLinkDialog(
             }
             result.fold(
                 onSuccess = { codeSent = true },
-                onFailure = { e -> errorMessage = e.message ?: "Couldn't send code" }
+                onFailure = { e -> errorMessage = friendlySendCodeError(e, mode) }
             )
             isSending = false
         }
@@ -178,7 +217,7 @@ fun AccountLinkDialog(
                         onNeedsNickname()
                     },
                     onFailure = { e ->
-                        errorMessage = e.message ?: "Invalid code"
+                        errorMessage = "Invalid or expired code. Please try again."
                         isVerifying = false
                     }
                 )
@@ -192,50 +231,36 @@ fun AccountLinkDialog(
                             playerRecord == null -> {
                                 // Verified identity, but no player record yet under it
                                 // (e.g. they signed up once, verified the email, but the
-                                // app closed before the nickname step finished). Log In
-                                // is never allowed to surface NicknameSetupDialog, so we
-                                // create a fallback profile silently instead — derived
-                                // from the email, since there's no nickname input on this
-                                // path to draw from.
-                                // Already running inside the coroutine started by
-                                // verifyCode() — no need for a nested scope.launch.
-                                // Keep isVerifying true for this brief extra step so
-                                // the Verify button doesn't flicker re-enabled while
-                                // the fallback profile is being created.
+                                // app closed before nickname setup finished). Log In must
+                                // never show a nickname popup, so auto-generate a fallback
+                                // nickname from the email and create the profile silently
+                                // in the background instead of falling through to
+                                // NicknameSetupDialog.
                                 isVerifying = true
-                                userPreferencesRepository.markAccountLinked(emailInput)
-                                val baseNickname = emailInput
-                                    .substringBefore("@")
-                                    .ifBlank { "Player" }
-
-                                // Availability pre-check, same convention as
-                                // NicknameSetupDialog/updateNickname's documented
-                                // caller contract — checking first is reliable,
-                                // unlike branching on createPlayerRecord's generic
-                                // RestException, which doesn't distinguish a
-                                // nickname collision from a network/RLS failure.
-                                val nicknameToUse = if (cloudSyncRepository.isNicknameAvailable(baseNickname)) {
-                                    baseNickname
-                                } else {
-                                    "$baseNickname-${generateRandomSuffix()}"
-                                }
-
-                                val createResult = cloudSyncRepository.createPlayerRecord(
+                                val fallback = fallbackNicknameFromEmail(emailInput)
+                                var createResult = cloudSyncRepository.createPlayerRecord(
                                     anonymousId = newUserId,
-                                    nickname = nicknameToUse
+                                    nickname = fallback
                                 )
-
-                                isVerifying = false
+                                if (createResult.isFailure) {
+                                    // Most likely a nickname collision — retry once with
+                                    // a randomized suffix rather than surfacing an error
+                                    // for something the user never typed.
+                                    createResult = cloudSyncRepository.createPlayerRecord(
+                                        anonymousId = newUserId,
+                                        nickname = "$fallback${(1000..9999).random()}"
+                                    )
+                                }
                                 createResult.fold(
-                                    onSuccess = {
-                                        userPreferencesRepository.markCloudSetupComplete(nicknameToUse)
+                                    onSuccess = { record ->
+                                        userPreferencesRepository.markAccountLinked(emailInput)
+                                        userPreferencesRepository.markCloudSetupComplete(record.nickname)
+                                        isVerifying = false
                                         onFullyRestored()
                                     },
-                                    onFailure = { error ->
-                                        // Availability was already confirmed above, so a
-                                        // failure here is a real problem (network/RLS/etc.),
-                                        // not a collision — surface it as-is.
-                                        errorMessage = error.message ?: "Couldn't finish setting up your account"
+                                    onFailure = { e ->
+                                        errorMessage = "Something went wrong finishing setup. Please try again."
+                                        isVerifying = false
                                     }
                                 )
                             }
@@ -259,7 +284,7 @@ fun AccountLinkDialog(
                         }
                     },
                     onFailure = { e ->
-                        errorMessage = e.message ?: "Invalid code"
+                        errorMessage = "Invalid or expired code. Please try again."
                         isVerifying = false
                     }
                 )
@@ -563,14 +588,4 @@ fun AccountLinkDialog(
             }
         }
     }
-}
-/**
- * Generates a random 4-character suffix for nickname retry (e.g., "a1b2").
- * Used by the fallback-nickname creation path when the email-derived
- * base nickname collides — appended to form a second attempt like
- * "john-a1b2" if "john" was taken.
- */
-private fun generateRandomSuffix(): String {
-    val chars = "abcdefghijklmnopqrstuvwxyz0123456789"
-    return (1..4).map { chars.random() }.joinToString("")
 }
