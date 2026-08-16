@@ -85,6 +85,34 @@ data class GlobalUiState(
     val errorMessage: String? = null
 )
 
+/**
+ * Maps errors from Friends/Global network calls to safe UI text. Known
+ * connectivity failures (DNS resolution, connect refused, timeout) get a
+ * clear "check your connection" message. Anything that looks like one of
+ * Supabase's verbose RestException dumps (URL/Headers/HTTP method) falls
+ * back to [fallback] instead of ever reaching the screen raw — same fix
+ * applied to AccountLinkDialog's auth errors. Short, legitimate messages
+ * from repository Result.failure() calls (e.g. "Invalid code") pass
+ * through unchanged.
+ */
+private fun friendlyErrorMessage(e: Throwable, fallback: String): String {
+    val raw = e.message ?: return fallback
+    val isNetworkError = raw.contains("Unable to resolve host", ignoreCase = true) ||
+        raw.contains("No address associated with hostname", ignoreCase = true) ||
+        raw.contains("failed to connect", ignoreCase = true) ||
+        raw.contains("timeout", ignoreCase = true) ||
+        raw.contains("UnknownHostException", ignoreCase = true) ||
+        raw.contains("ConnectException", ignoreCase = true) ||
+        raw.contains("Network is unreachable", ignoreCase = true)
+    if (isNetworkError) {
+        return "No internet connection. Check your connection and try again."
+    }
+    val looksLikeRawDump = raw.contains("Headers=", ignoreCase = true) ||
+        raw.contains("Http Method:", ignoreCase = true) ||
+        raw.contains("HTTP request to", ignoreCase = true)
+    return if (looksLikeRawDump) fallback else raw
+}
+
 class StatsViewModel(context: Context) : ViewModel() {
 
     private val statsRepository = StatsRepository(context)
@@ -286,12 +314,14 @@ class StatsViewModel(context: Context) : ViewModel() {
                     isLoading = false,
                     myFriendCode = codeResult.getOrNull(),
                     friends = friends,
-                    errorMessage = codeResult.exceptionOrNull()?.message
+                    errorMessage = codeResult.exceptionOrNull()?.let {
+                        friendlyErrorMessage(it, "Couldn't load your friend code. Please try again.")
+                    }
                 )
             } catch (e: Exception) {
                 _friendsUiState.value = _friendsUiState.value.copy(
                     isLoading = false,
-                    errorMessage = e.message ?: "Failed to load friends"
+                    errorMessage = friendlyErrorMessage(e, "Failed to load friends. Please try again.")
                 )
             }
         }
@@ -330,14 +360,14 @@ class StatsViewModel(context: Context) : ViewModel() {
                     onFailure = { error ->
                         _friendsUiState.value = _friendsUiState.value.copy(
                             isRedeeming = false,
-                            errorMessage = error.message ?: "Couldn't redeem code"
+                            errorMessage = friendlyErrorMessage(error, "Couldn't redeem code. Please try again.")
                         )
                     }
                 )
             } catch (e: Exception) {
                 _friendsUiState.value = _friendsUiState.value.copy(
                     isRedeeming = false,
-                    errorMessage = e.message ?: "Couldn't redeem code"
+                    errorMessage = friendlyErrorMessage(e, "Couldn't redeem code. Please try again.")
                 )
             }
         }
@@ -395,7 +425,7 @@ class StatsViewModel(context: Context) : ViewModel() {
             } catch (e: Exception) {
                 _globalUiState.value = _globalUiState.value.copy(
                     isLoading = false,
-                    errorMessage = e.message ?: "Failed to load global leaderboard"
+                    errorMessage = friendlyErrorMessage(e, "Failed to load global leaderboard. Please try again.")
                 )
             }
         }

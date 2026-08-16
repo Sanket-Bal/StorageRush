@@ -738,7 +738,8 @@ private fun LeaderboardTab(
                 if (isAccountLinked) {
                     FriendsLeaderboardContent(
                         state = friendsState,
-                        onRedeemCode = onRedeemCode
+                        onRedeemCode = onRedeemCode,
+                        onRetry = onLoadFriends
                     )
                 } else {
                     LinkAccountToUnlockPrompt()
@@ -746,7 +747,7 @@ private fun LeaderboardTab(
             }
             LeaderboardScope.GLOBAL -> {
                 if (isAccountLinked) {
-                    GlobalLeaderboardContent(state = globalState)
+                    GlobalLeaderboardContent(state = globalState, onRetry = onLoadGlobal)
                 } else {
                     LinkAccountToUnlockPrompt()
                 }
@@ -873,7 +874,8 @@ private fun LinkAccountToUnlockPrompt() {
 @Composable
 private fun FriendsLeaderboardContent(
     state: FriendsUiState,
-    onRedeemCode: (String) -> Unit
+    onRedeemCode: (String) -> Unit,
+    onRetry: () -> Unit
 ) {
     val clipboardManager = LocalClipboardManager.current
     var redeemInput by remember { mutableStateOf("") }
@@ -976,6 +978,15 @@ private fun FriendsLeaderboardContent(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.error
             )
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = onRetry,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                Text("Retry")
+            }
         }
 
         if (state.redeemSuccessMessage != null) {
@@ -1070,7 +1081,7 @@ private fun FriendRow(rank: Int, friend: FriendLeaderboardEntry) {
  * highlighted with a "You" tag if they happen to be in the top 50.
  */
 @Composable
-private fun GlobalLeaderboardContent(state: GlobalUiState) {
+private fun GlobalLeaderboardContent(state: GlobalUiState, onRetry: () -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = "Top 50 worldwide",
@@ -1089,11 +1100,24 @@ private fun GlobalLeaderboardContent(state: GlobalUiState) {
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         } else if (state.errorMessage != null) {
-            Text(
-                text = state.errorMessage,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error
-            )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = state.errorMessage,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+                Button(
+                    onClick = onRetry,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Text("Retry")
+                }
+            }
         } else if (state.entries.isEmpty()) {
             Text(
                 text = "No players on the leaderboard yet — be the first!",
