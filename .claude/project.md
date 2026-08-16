@@ -106,9 +106,9 @@ app/src/main/java/com/storagerush/app/
 │   │   ├── ImageSectionsScreen.kt
 │   │   └── VideoSectionsScreen.kt
 │   ├── stats/
-│   │   └── StatsScreen.kt       # 3-tab stats screen (Progress / Achievements / Leaderboard)
-├── viewmodel/
-│   │   └── StatsViewModel.kt    # Moved here from ui/stats/; holds StatsUiState + FriendsUiState + GlobalUiState
+│   │   ├── StatsScreen.kt       # 3-tab stats screen (Profile / Achievements / Leaderboard)
+│   │   └── StatsViewModel.kt    # Physical location; package is com.storagerush.app.viewmodel
+│   │                            # Holds StatsUiState + NicknameEditState + FriendsUiState + GlobalUiState
 │   ├── theme/
 │   │   ├── Color.kt
 │   │   ├── Theme.kt
@@ -123,7 +123,8 @@ app/src/main/java/com/storagerush/app/
 └── viewmodel/
     ├── DeckViewModel.kt
     ├── PlayerViewModel.kt
-    └── TrashBinViewModel.kt     # Now includes syncProgressToCloud() after every deletion
+    └── TrashBinViewModel.kt     # Includes syncProgressToCloud() after every deletion;
+                                 # TrashBinState data class is defined in this file
 ```
 
 ---
@@ -162,12 +163,20 @@ Mirrors `public.friend_codes` — `id`, `code`, `playerId`, `isUsed`, `usedById`
 - `VideoFilterType`: `LARGE_VIDEOS`, `SHORT_VIDEOS`, `ALL_VIDEOS`
 
 ### TrashBinState
+Defined inside `TrashBinViewModel.kt`.
 - `trashItems`, `totalCount`, `totalSizeBytes`, `isLoading`, `errorMessage`
 - `selectedForDeletion: Set<Long>`, `showDeleteConfirmation`
 - `lastDeletionFreedBytes`, `lastDeletionItemCount`, `lastXpEarned`, `leveledUp`, `newlyUnlockedAchievements`
 
-### AppStats / PlayerState / StatsUiState
-See `StatsRepository.kt`, `PlayerRepository.kt`, `StatsViewModel.kt` — unchanged from before.
+### AppStats / PlayerState
+See `StatsRepository.kt`, `PlayerRepository.kt`.
+
+### StatsUiState / NicknameEditState / FriendsUiState / GlobalUiState
+All defined inside `ui/stats/StatsViewModel.kt` (package `com.storagerush.app.viewmodel`).
+- `StatsUiState`: `appStats`, `playerState`, `achievements`, `isLoading`, derived `unlockedCount`
+- `NicknameEditState`: `isSaving`, `errorMessage`
+- `FriendsUiState`: `isLoading`, `myFriendCode`, `friends`, `errorMessage`, `isRedeeming`, `redeemSuccessMessage`
+- `GlobalUiState`: `isLoading`, `entries`, `myNickname`, `errorMessage`
 
 ---
 
@@ -247,7 +256,7 @@ Singleton `object` — matches the app's no-DI convention. Installs `Auth` and `
 Pure Kotlin object. `calculateXp(freedBytes, streakWeeks)` — hybrid formula with linear base + exponential bonus + tiered multiplier × streak multiplier (capped at 10 weeks). `xpRequiredForLevel(level)` — soft curve: `50 + (n*40) + floor(n^1.5 * 15)`.
 
 ### Achievements
-12 badges across 3 categories (Storage, Level, Streak). Unlock status is derived, never stored. `newlyUnlockedAchievements` is diffed before/after each deletion.
+12 badges across 3 categories (Storage, Level, Streak). Defined in `AchievementDefinitions.ALL` inside `Achievement.kt`. Unlock status is derived, never stored. `newlyUnlockedAchievements` is diffed before/after each deletion.
 
 ### Streak Logic
 IST (`Asia/Kolkata`) week boundaries. Same week → unchanged. Next week → +1. Gap ≥ 2 weeks → reset to 1. Uses `bestStreak` for achievement checks so earned streaks survive resets.
@@ -269,7 +278,7 @@ Hamburger dropdown: Images, Videos, Trash Bin, Cleanup Stats, and a live account
 Full-screen scrim overlay. Nickname field → "Check Availability" → "Create profile". Not dismissible — blocks until setup completes. Gated by `hasCompletedCloudSetup` so it never shows twice.
 
 ### StatsScreen (3 tabs)
-- **Progress**: Level ring, weekly/best streak, lifetime stats
+- **Profile** (formerly "Progress"): NicknameEditor (if cloud profile exists), Level ring, weekly/best streak, lifetime stats
 - **Achievements**: 2-column grid of 12 badges; locked = 🔒
 - **Leaderboard**: 3 sub-scopes loaded on-demand:
   - **Local**: your stats card + personal best (streak, biggest cleanup, highest level)
@@ -296,7 +305,10 @@ Full-screen scrim overlay. Nickname field → "Check Availability" → "Create p
 - All repository methods are `suspend fun` or return `Flow`
 - UI state = single immutable data class updated via `.copy()`
 - No Navigation component — screen switching is `mutableStateOf<AppScreen>` in `MainActivity`
-- `StatsViewModel` lives in `viewmodel/` — the old `ui/stats/StatsViewModel.kt` path is no longer used; do not recreate it there
+- `StatsViewModel` is physically at `ui/stats/StatsViewModel.kt` but its package is `com.storagerush.app.viewmodel` — imports reference the `viewmodel` package
+- `TrashBinState` is defined inside `TrashBinViewModel.kt`, not a separate file
+- `StatsUiState`, `NicknameEditState`, `FriendsUiState`, `GlobalUiState` are all defined inside `StatsViewModel.kt`
+- `AchievementDefinitions` object is defined in `Achievement.kt` alongside the `Achievement` data class
 - `MainScreen.kt` is a leftover Phase 1 placeholder, not used
 - `AppSettings.kt` model exists but not yet wired to DataStore
 - `PermissionDialogState.kt` exists but not actively used
@@ -307,3 +319,4 @@ Full-screen scrim overlay. Nickname field → "Check Availability" → "Create p
 - Global leaderboard tab is built (top-50 worldwide, "You" highlight)
 - Logout flow: `cloudSyncRepository.signOut()` + `userPreferencesRepository.clearAccountLink()` + `playerRepository.resetToNewPlayer()` + `statsRepository.clearAllStats()` — all called together from MainActivity's logout confirmation dialog
 - `AccountLinkDialog` is also reachable mid-session from the hamburger menu (`showMenuAccountLinkDialog`) with `confirmBeforeRestore = true`
+- `clearAccountLink()` also resets `has_completed_cloud_setup` and `saved_nickname` — so after logout, cloud sync correctly no-ops

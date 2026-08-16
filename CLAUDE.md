@@ -20,7 +20,7 @@ This is an Android app. Full project context is in `.claude/project.md`. Read it
 - UI state = single immutable data class, updated via `.copy()`
 - All async work uses Kotlin Coroutines / Flow, runs on `Dispatchers.IO`
 - New screens go in `ui/<feature>/`, new ViewModels go in `viewmodel/`
-- Exception: `StatsViewModel` lives in `ui/stats/` — do NOT move it
+- Exception: `StatsViewModel` lives in `ui/stats/` (file path) but declares `package com.storagerush.app.viewmodel` — do NOT move it
 - Navigation: add new screens to the `AppScreen` enum in `MainActivity.kt` and handle in the `when` block
 - Do NOT add Hilt, Room, or Jetpack Navigation unless explicitly asked
 - Do NOT remove existing code unless asked
@@ -30,7 +30,7 @@ This is an Android app. Full project context is in `.claude/project.md`. Read it
 |--------|------|-----------| 
 | Deck (swipe) | `ui/deck/DeckScreen.kt` | `viewmodel/DeckViewModel.kt` |
 | Trash Bin | `ui/trash/TrashBinScreen.kt` | `viewmodel/TrashBinViewModel.kt` |
-| Stats (3-tab) | `ui/stats/StatsScreen.kt` | `ui/stats/StatsViewModel.kt` |
+| Stats (3-tab) | `ui/stats/StatsScreen.kt` | `ui/stats/StatsViewModel.kt` (package: `viewmodel`) |
 | Image Sections | `ui/sections/ImageSectionsScreen.kt` | *(no ViewModel — direct repo call)* |
 | Video Sections | `ui/sections/VideoSectionsScreen.kt` | *(no ViewModel — static list)* |
 | Tutorial | `ui/tutorial/TutorialGuideScreen.kt` | *(no ViewModel)* |
@@ -57,7 +57,7 @@ This is an Android app. Full project context is in `.claude/project.md`. Read it
 | `data/remote/SupabaseClientProvider.kt` | Singleton Supabase client (Auth + Postgrest) |
 | `data/repository/CloudSyncRepository.kt` | Anonymous auth, player record CRUD, OTP sign-up/login, progress sync |
 | `data/repository/FriendsRepository.kt` | Friend code generate/redeem, friends leaderboard query (fully implemented) |
-| `viewmodel/StatsViewModel.kt` | Now lives in `viewmodel/` (not `ui/stats/`) — holds `FriendsUiState` + `GlobalUiState` alongside `StatsUiState` |
+| `ui/stats/StatsViewModel.kt` | Lives at `ui/stats/StatsViewModel.kt` but in package `com.storagerush.app.viewmodel`; holds `StatsUiState` + `FriendsUiState` + `GlobalUiState` + nickname edit |
 | `ui/deck/DeckState.kt` | Deck UI state + `DeckType` sealed class + `VideoFilterType` enum |
 | `ui/deck/MediaCard.kt` | Swipeable card with drag + tap-for-video gesture |
 | `ui/deck/ProgressCard.kt` | Compact Level/XP/streak bar shown at top of Deck |
@@ -77,8 +77,9 @@ This is an Android app. Full project context is in `.claude/project.md`. Read it
 | `data/repository/PlayerRepository.kt` | DataStore player progression (XP, level, streak) + `restoreFromCloud()` |
 | `data/repository/UserPreferencesRepository.kt` | DataStore user prefs (last deck, tutorial seen, cloud setup, account linking) |
 | `data/gamification/XpCalculator.kt` | Pure XP/level math (no Android deps) |
-| `data/gamification/Achievement.kt` | 12 achievement badge definitions |
+| `data/gamification/Achievement.kt` | 12 achievement badge definitions (`AchievementDefinitions.ALL`) |
 | `viewmodel/PlayerViewModel.kt` | Exposes `PlayerState` Flow for Deck's ProgressCard |
+| `viewmodel/TrashBinViewModel.kt` | Includes `syncProgressToCloud()` after every deletion; `TrashBinState` defined here |
 
 ## Permissions (AndroidManifest)
 - `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO` (API 33+)
@@ -90,13 +91,15 @@ This is an Android app. Full project context is in `.claude/project.md`. Read it
 - `AppSettings.kt` model exists but is NOT yet wired to DataStore
 - `PermissionDialogState.kt` exists but is NOT used by `PermissionDialog.kt`
 - `MainScreen.kt` is a Phase 1 leftover — not used anywhere
-- `StatsViewModel` lives in `ui/stats/` (not `viewmodel/`) — inconsistency to be aware of, don't move it
+- `StatsViewModel` is physically at `ui/stats/StatsViewModel.kt` but its package declaration is `com.storagerush.app.viewmodel` — imports use the `viewmodel` package path
 - `MediaPermissionState` enum (FULL / PARTIAL / DENIED) lives in `MainActivity.kt`
 - Streak weeks are fixed to IST (`Asia/Kolkata`) regardless of device timezone — intentional per spec
 - Supabase anon key is currently hardcoded in `SupabaseClientProvider.kt` — move to `local.properties`/`BuildConfig` before public release
 - `FriendsRepository` is fully wired and the Friends leaderboard tab UI is built (friend code display/copy, redeem input, friends list)
 - Global leaderboard tab is built (top-50 worldwide, "You" highlight if in top 50)
-- `StatsViewModel` moved to `viewmodel/` package — `ui/stats/StatsViewModel.kt` is the old location; new canonical path is `viewmodel/StatsViewModel.kt`
 - `AccountLinkDialog` supports `confirmBeforeRestore = true` for mid-session login (menu path) to prevent silently overwriting local progress
 - `AppMenu` has live Sign Up/Log In ↔ Log Out toggle driven by `UserPreferencesRepository.isAccountLinkedFlow`
 - Logout flow resets local DataStore (level/XP/streak/stats/nickname) in addition to signing out of Supabase
+- `TrashBinState` data class is defined inside `TrashBinViewModel.kt` (not a separate file)
+- `StatsUiState`, `NicknameEditState`, `FriendsUiState`, `GlobalUiState` are all defined inside `StatsViewModel.kt`
+- `AchievementDefinitions` object (with `ALL` list) is defined in `Achievement.kt` alongside the `Achievement` data class
