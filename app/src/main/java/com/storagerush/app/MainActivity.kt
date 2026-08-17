@@ -371,10 +371,16 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // Nickname setup dialog (Phase A finalizer) — shown after tutorial,
-                        // blocks main app interaction until player profile is created on cloud.
-                        // Gated by hasCompletedCloudSetup so it never shows twice.
-                        if (showNicknameDialog && !hasCompletedCloudSetup) {
+                        // Nickname setup dialog (Phase A finalizer) — shown after a Sign Up
+                        // completes, blocks main app interaction until player profile is
+                        // created on cloud. Driven purely by showNicknameDialog, which is
+                        // only ever set true by a real Sign Up's onNeedsNickname() callback
+                        // (see AccountLinkDialog) — no extra gate needed here. (Previously
+                        // also required !hasCompletedCloudSetup, but that's a stale
+                        // device-level flag from whatever account was last set up on this
+                        // device, and blocked the dialog for legitimate repeat Sign Ups —
+                        // e.g. after Log Out, or a second account on the same device.)
+                        if (showNicknameDialog) {
                             NicknameSetupDialog(
                                 cloudSyncRepository = cloudSyncRepository,
                                 userPreferencesRepository = userPreferencesRepository,
