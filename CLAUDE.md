@@ -12,7 +12,7 @@ This is an Android app. Full project context is in `.claude/project.md`. Read it
 **Media access**: Android MediaStore API
 **Video thumbnails**: Coil `VideoFrameDecoder` registered in `StorageRushApplication`
 **Cloud backend**: Supabase (anonymous auth + Postgrest) via `supabase-kt BOM 3.5.0`
-**Min SDK**: 24 | **Target/Compile SDK**: 34 | **Kotlin**: 2.2.10 | **AGP**: 9.3.1
+**Min SDK**: 24 | **Target/Compile SDK**: 36 | **Kotlin**: 2.2.10 | **AGP**: 9.3.1
 
 ## Coding Rules
 
@@ -54,11 +54,11 @@ This is an Android app. Full project context is in `.claude/project.md`. Read it
 | `data/model/remote/PlayerRecord.kt` | Mirrors `public.players` Supabase table |
 | `data/model/remote/FriendRecord.kt` | Mirrors `public.friends` table + `FriendLeaderboardEntry` joined shape |
 | `data/model/remote/FriendCodeRecord.kt` | Mirrors `public.friend_codes` table |
-| `data/remote/SupabaseClientProvider.kt` | Singleton Supabase client (Auth + Postgrest) |
-| `data/repository/CloudSyncRepository.kt` | Anonymous auth, player record CRUD, OTP sign-up/login, progress sync |
+| `data/remote/SupabaseClientProvider.kt` | Singleton Supabase client (Auth + Postgrest); keys read from `BuildConfig` (sourced from `local.properties`) |
+| `data/repository/CloudSyncRepository.kt` | Anonymous auth, player record CRUD, nickname update, global leaderboard, OTP sign-up/login, progress sync |
 | `data/repository/FriendsRepository.kt` | Friend code generate/redeem, friends leaderboard query (fully implemented) |
-| `ui/stats/StatsViewModel.kt` | Lives at `ui/stats/StatsViewModel.kt` but in package `com.storagerush.app.viewmodel`; holds `StatsUiState` + `FriendsUiState` + `GlobalUiState` + nickname edit |
-| `ui/deck/DeckState.kt` | Deck UI state + `DeckType` sealed class + `VideoFilterType` enum |
+| `ui/stats/StatsViewModel.kt` | Lives at `ui/stats/StatsViewModel.kt` but in package `com.storagerush.app.viewmodel`; holds `StatsUiState` + `FriendsUiState` + `GlobalUiState` + nickname edit; exposes `nickname`, `hasCloudProfile`, `isAccountLinked` flows and `updateNickname()` |
+| `ui/deck/DeckState.kt` | Deck UI state + `UndoEntry` data class + `DeckType` sealed class + `VideoFilterType` enum |
 | `ui/deck/MediaCard.kt` | Swipeable card with drag + tap-for-video gesture |
 | `ui/deck/ProgressCard.kt` | Compact Level/XP/streak bar shown at top of Deck |
 | `ui/deck/AchievementToast.kt` | Top-anchored animated toast for achievement unlocks |
@@ -75,11 +75,12 @@ This is an Android app. Full project context is in `.claude/project.md`. Read it
 | `data/repository/TrashBinRepository.kt` | DataStore trash persistence (JSON, max 100, auto-purge 30d) |
 | `data/repository/StatsRepository.kt` | DataStore stats persistence + `restoreFromCloud()` |
 | `data/repository/PlayerRepository.kt` | DataStore player progression (XP, level, streak) + `restoreFromCloud()` |
-| `data/repository/UserPreferencesRepository.kt` | DataStore user prefs (last deck, tutorial seen, cloud setup, account linking) |
+| `data/repository/UserPreferencesRepository.kt` | DataStore user prefs (last deck, tutorial seen, cloud setup, account linking); contains `LastDeckSelection` serializable class |
 | `data/gamification/XpCalculator.kt` | Pure XP/level math (no Android deps) |
 | `data/gamification/Achievement.kt` | 12 achievement badge definitions (`AchievementDefinitions.ALL`) |
 | `viewmodel/PlayerViewModel.kt` | Exposes `PlayerState` Flow for Deck's ProgressCard |
 | `viewmodel/TrashBinViewModel.kt` | Includes `syncProgressToCloud()` after every deletion; `TrashBinState` defined here |
+| `viewmodel/DeckViewModel.kt` | Manages deck loading, swipe/undo logic; exposes `clearUndoStack()`, `resetDeck()`, `clearDeck()` |
 
 ## Permissions (AndroidManifest)
 - `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO` (API 33+)
@@ -94,7 +95,7 @@ This is an Android app. Full project context is in `.claude/project.md`. Read it
 - `StatsViewModel` is physically at `ui/stats/StatsViewModel.kt` but its package declaration is `com.storagerush.app.viewmodel` — imports use the `viewmodel` package path
 - `MediaPermissionState` enum (FULL / PARTIAL / DENIED) lives in `MainActivity.kt`
 - Streak weeks are fixed to IST (`Asia/Kolkata`) regardless of device timezone — intentional per spec
-- Supabase anon key is currently hardcoded in `SupabaseClientProvider.kt` — move to `local.properties`/`BuildConfig` before public release
+- Supabase URL and anon key are read from `local.properties` via `BuildConfig` fields (`SUPABASE_URL`, `SUPABASE_ANON_KEY`) declared in `app/build.gradle.kts` — `local.properties` is git-ignored; missing entries fail the build loudly
 - `FriendsRepository` is fully wired and the Friends leaderboard tab UI is built (friend code display/copy, redeem input, friends list)
 - Global leaderboard tab is built (top-50 worldwide, "You" highlight if in top 50)
 - `AccountLinkDialog` supports `confirmBeforeRestore = true` for mid-session login (menu path) to prevent silently overwriting local progress
@@ -103,3 +104,7 @@ This is an Android app. Full project context is in `.claude/project.md`. Read it
 - `TrashBinState` data class is defined inside `TrashBinViewModel.kt` (not a separate file)
 - `StatsUiState`, `NicknameEditState`, `FriendsUiState`, `GlobalUiState` are all defined inside `StatsViewModel.kt`
 - `AchievementDefinitions` object (with `ALL` list) is defined in `Achievement.kt` alongside the `Achievement` data class
+- `UndoEntry` data class (item + wasTrashed flag) is defined in `DeckState.kt` alongside `DeckState`
+- `LastDeckSelection` serializable class (storage mirror of `DeckType`) is defined inside `UserPreferencesRepository.kt`
+- `FriendLeaderboardEntry` is reused for both Friends and Global leaderboard queries (same 4-column shape)
+- `getGlobalLeaderboard()` in `CloudSyncRepository` selects only 4 columns explicitly — adding `*` would break decoding since `FriendLeaderboardEntry` doesn't declare all `players` columns and JSON decoding is strict

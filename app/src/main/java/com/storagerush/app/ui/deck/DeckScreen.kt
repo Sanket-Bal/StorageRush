@@ -18,6 +18,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -82,6 +83,17 @@ fun DeckScreen(
     // Load the appropriate deck on first composition
     LaunchedEffect(deckType) {
         viewModel.loadDeck(deckType)
+    }
+
+    // Clear the deck's own undo history whenever this screen leaves
+    // composition — navigating to Trash Bin, Stats, Images, Videos,
+    // Tutorial, or the app closing. Keeps the undo button scoped to
+    // "while actively on this Deck screen session" instead of persisting
+    // in the background across navigation.
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.clearUndoStack()
+        }
     }
 
     // Show snackbar if returning from trash with deletion stats (Phase 3.7)

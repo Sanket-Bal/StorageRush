@@ -3,6 +3,24 @@ package com.storagerush.app.ui.deck
 import com.storagerush.app.data.model.MediaItem
 
 /**
+ * One entry in the undo stack: a swiped item, paired with whether THAT
+ * specific swipe was a trash action. Previously the undo stack was a plain
+ * List<MediaItem> and a single shared `lastSwipeWasRight` flag on DeckState
+ * was used to decide whether to restore-from-trash on undo. That flag only
+ * ever reflects the MOST RECENT swipe, so it broke on the second and any
+ * later undo in a row — e.g. trash 3 items, undo 3 times in a row: only the
+ * first undo correctly restored from the trash bin, the rest silently
+ * skipped it (item reappeared in the deck but was never actually removed
+ * from the trash bin). Tracking wasTrashed per-entry fixes this: each undo
+ * always knows exactly what its own item's action was, regardless of order
+ * or how many undos happen consecutively.
+ */
+data class UndoEntry(
+    val item: MediaItem,
+    val wasTrashed: Boolean
+)
+
+/**
  * Represents the UI state of a single swipe deck.
  * Immutable data class for reactive state management.
  */
@@ -13,8 +31,9 @@ data class DeckState(
     // Index of the currently displayed card (0 = first card)
     val currentCardIndex: Int = 0,
     
-    // Undo stack: last 5 swiped items (restored when user clicks Undo)
-    val undoStack: List<MediaItem> = emptyList(),
+    // Undo stack: swiped items this session, each paired with whether it
+    // was a trash action, restored in reverse order when Undo is tapped.
+    val undoStack: List<UndoEntry> = emptyList(),
     
     // Loading state
     val isLoading: Boolean = false,
@@ -22,9 +41,23 @@ data class DeckState(
     // Error message (null if no error)
     val errorMessage: String? = null,
     
-    // User has swiped right (Keep)? Used for animation
+    // Most recent swipe direction, kept for potential animation use.
+    // NOT used to decide undo's trash-restore behavior anymore — see
+    // UndoEntry.wasTrashed above for why a single shared flag was wrong.
     val lastSwipeWasRight: Boolean? = null,
-    
+
+    // Ids of items THIS session's swipeLeft() has sent to the trash bin.
+    // Swiping left never removes the card from mediaItems — it only
+    // advances currentCardIndex past it (see DeckViewModel.swipeLeft()) —
+    // so a card sitting behind the pointer with a "still trashed?" status
+    // is otherwise indistinguishable from one the user simply kept
+    // (swiped right). DeckViewModel.syncWithTrash() reads this set to know
+    // which behind-the-pointer cards are even eligible to reappear if
+    // they're later restored via the Trash Bin screen (as opposed to
+    // Deck's own inline Undo button, which restores immediately and
+    // removes the id from this set — see DeckViewModel.undo()).
+    val sessionTrashedIds: Set<Long> = emptySet(),
+
     // Deck type (Screenshots, Large Videos, Monthly Photos)
     val deckType: String = "Unknown"
 ) {
@@ -70,9 +103,6 @@ data class DeckState(
 
 /**
  * Sealed class for different deck types (Phase 4.3).
- * Was a plain enum; converted to sealed class so dynamic variants
- * (a specific folder, a specific video filter) can carry their own data
- * instead of being forced into a single generic "CUSTOM" bucket.
  */
 sealed class DeckType {
     object Screenshots : DeckType()

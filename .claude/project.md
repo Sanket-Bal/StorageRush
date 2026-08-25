@@ -15,7 +15,7 @@ StorageRush is an Android app that lets users quickly clean up their phone stora
 - **Coroutines**: Kotlin Flows for async media loading
 - **Cloud backend**: Supabase (`supabase-kt BOM 3.5.0`) — anonymous auth, Postgrest, email OTP
 - **HTTP engine**: Ktor Android (`ktor-client-android:3.1.1`) — required by supabase-kt
-- **Min SDK**: 24 | **Target SDK**: 34 | **Compile SDK**: 36
+- **Min SDK**: 24 | **Target SDK**: 36 | **Compile SDK**: 36
 - **Java 8+ APIs**: enabled via `coreLibraryDesugaring:2.0.4` (also required for supabase-kt on minSdk 24)
 - **Kotlin**: 2.2.10 | **AGP**: 9.3.1 | **Compose BOM**: 2026.06.01
 
@@ -70,21 +70,21 @@ app/src/main/java/com/storagerush/app/
 │   │   ├── BucketInfo.kt        # Represents a discovered image folder (bucketId, name, count, thumbnail)
 │   │   └── AppSettings.kt       # User preferences model (not yet persisted to DataStore)
 │   ├── remote/
-│   │   └── SupabaseClientProvider.kt  # Singleton Supabase client (Auth + Postgrest installed)
+│   │   └── SupabaseClientProvider.kt  # Singleton Supabase client (Auth + Postgrest); keys from BuildConfig
 │   └── repository/
-│       ├── CloudSyncRepository.kt    # Anonymous auth, player record CRUD, OTP sign-up/login, progress sync
+│       ├── CloudSyncRepository.kt    # Anonymous auth, player record CRUD, nickname update, global leaderboard, OTP sign-up/login, progress sync
 │       ├── FriendsRepository.kt      # Friend code generate/redeem, friends leaderboard query
 │       ├── MediaStoreRepository.kt   # Queries MediaStore, returns Flow<List<MediaItem>>
 │       ├── TrashBinRepository.kt     # DataStore-backed trash list (JSON serialized)
 │       ├── StatsRepository.kt        # DataStore-backed cleanup stats + restoreFromCloud()
 │       ├── PlayerRepository.kt       # DataStore-backed player progression + restoreFromCloud()
-│       └── UserPreferencesRepository.kt  # DataStore user prefs (last deck, tutorial seen, cloud setup, account linking)
+│       └── UserPreferencesRepository.kt  # DataStore user prefs; contains LastDeckSelection serializable class
 ├── ui/
 │   ├── components/
 │   │   └── HelpButton.kt        # Reusable "?" circle button (Deck top bar + onboarding gate)
 │   ├── deck/
 │   │   ├── DeckScreen.kt
-│   │   ├── DeckState.kt         # UI state data class + DeckType sealed class + VideoFilterType enum
+│   │   ├── DeckState.kt         # UndoEntry data class + DeckState + DeckType sealed class + VideoFilterType enum
 │   │   ├── MediaCard.kt         # Swipeable card (drag gesture + tap-to-preview for videos)
 │   │   ├── MediaInfoPanel.kt
 │   │   ├── ActionButtons.kt
@@ -109,6 +109,7 @@ app/src/main/java/com/storagerush/app/
 │   │   ├── StatsScreen.kt       # 3-tab stats screen (Profile / Achievements / Leaderboard)
 │   │   └── StatsViewModel.kt    # Physical location; package is com.storagerush.app.viewmodel
 │   │                            # Holds StatsUiState + NicknameEditState + FriendsUiState + GlobalUiState
+│   │                            # Exposes nickname, hasCloudProfile, isAccountLinked flows + updateNickname()
 │   ├── theme/
 │   │   ├── Color.kt
 │   │   ├── Theme.kt
@@ -121,7 +122,7 @@ app/src/main/java/com/storagerush/app/
 ├── util/
 │   └── PermissionHelper.kt
 └── viewmodel/
-    ├── DeckViewModel.kt
+    ├── DeckViewModel.kt         # loadDeck(), swipe/undo logic, clearUndoStack(), resetDeck(), clearDeck()
     ├── PlayerViewModel.kt
     └── TrashBinViewModel.kt     # Includes syncProgressToCloud() after every deletion;
                                  # TrashBinState data class is defined in this file
@@ -153,10 +154,16 @@ Mirrors `public.players` Supabase table.
 
 ### FriendRecord / FriendLeaderboardEntry (`@Serializable`, remote)
 - `FriendRecord`: mirrors `public.friends` (one-way: `userId → friendId`)
-- `FriendLeaderboardEntry`: joined shape for leaderboard display (`nickname`, `level`, `totalCareerXp`, `weeklyStreak`)
+- `FriendLeaderboardEntry`: joined shape for leaderboard display (`nickname`, `level`, `totalCareerXp`, `weeklyStreak`). Reused for both Friends and Global leaderboard queries.
 
 ### FriendCodeRecord (`@Serializable`, remote)
 Mirrors `public.friend_codes` — `id`, `code`, `playerId`, `isUsed`, `usedById`.
+
+### UndoEntry
+Defined in `DeckState.kt`. Pairs a swiped `MediaItem` with `wasTrashed: Boolean` so each undo knows exactly what action to reverse, regardless of how many consecutive undos happen.
+
+### LastDeckSelection (`@Serializable`)
+Defined inside `UserPreferencesRepository.kt`. Storage-layer mirror of `DeckType` — a flat record with a `kind` discriminator string plus optional `bucketId`/`bucketName`/`videoFilterType` fields. `DeckType` itself is a UI-layer sealed class and not `@Serializable`.
 
 ### DeckState / DeckType / VideoFilterType
 - `DeckType`: sealed class — `Screenshots`, `MonthlyPhotos`, `Bucket(bucketId, bucketName)`, `VideoFilter(filter)`
@@ -170,6 +177,8 @@ Defined inside `TrashBinViewModel.kt`.
 
 ### AppStats / PlayerState
 See `StatsRepository.kt`, `PlayerRepository.kt`.
+- `AppStats`: `totalStorageFreedBytes`, `totalMediaCleaned`, `lastSessionFreedBytes`, `lastSessionMediaCleaned`, `largestSingleCleanupBytes`
+- `PlayerState`: `level`, `currentXp`, `totalCareerXp`, `weeklyStreak`, `bestStreak`, `lastCleanupTimestamp`; computed `xpRequiredForNextLevel`, `xpProgressFraction`
 
 ### StatsUiState / NicknameEditState / FriendsUiState / GlobalUiState
 All defined inside `ui/stats/StatsViewModel.kt` (package `com.storagerush.app.viewmodel`).
@@ -186,8 +195,8 @@ All defined inside `ui/stats/StatsViewModel.kt` (package `com.storagerush.app.vi
 1. User swipes left/right or taps Keep/Trash buttons
 2. `DeckViewModel.swipeLeft()` / `swipeRight()` called
 3. On swipe left: `TrashBinRepository.addToTrash(mediaItem)`
-4. `currentCardIndex` increments, item pushed to `undoStack` (capped at 5)
-5. Undo: pops `undoStack`, calls `TrashBinRepository.removeFromTrash()` if last action was trash
+4. `currentCardIndex` increments, item pushed to `undoStack` as `UndoEntry(item, wasTrashed)` (capped at 5)
+5. Undo: pops `undoStack`, calls `TrashBinRepository.removeFromTrash()` if `entry.wasTrashed == true`
 
 ### Deletion Flow
 1. User opens TrashBinScreen, selects items, taps Delete → confirmation dialog
@@ -246,7 +255,19 @@ Anonymous sign-in via `client.auth.signInAnonymously()`. Email linking upgrades 
 `friends` table RLS only allows a row where `user_id` = caller's own player ID. Reciprocal friend rows are inserted via a `SECURITY DEFINER` Postgres function `redeem_friend_code(input_code)` to bypass this for the code-owner's row.
 
 ### SupabaseClientProvider
-Singleton `object` — matches the app's no-DI convention. Installs `Auth` and `Postgrest` plugins. Anon key is currently hardcoded — move to `BuildConfig` before release.
+Singleton `object` — matches the app's no-DI convention. Installs `Auth` and `Postgrest` plugins. URL and anon key are read from `BuildConfig.SUPABASE_URL` / `BuildConfig.SUPABASE_ANON_KEY`, which are injected at build time from `local.properties` (git-ignored). Missing entries fail the build loudly.
+
+### CloudSyncRepository — Key Methods
+- `ensureSignedIn()` — anonymous sign-in if no session; returns user ID
+- `isNicknameAvailable(nickname)` — pre-check before insert/update
+- `createPlayerRecord(anonymousId, nickname)` — first-ever setup only
+- `getPlayerRecord(anonymousId)` — fetch existing record or null
+- `updateNickname(anonymousId, nickname)` — Profile tab nickname edit
+- `getGlobalLeaderboard(limit)` — top-N players by `total_career_xp`; selects only 4 columns explicitly (strict JSON decoding)
+- `syncPlayerProgress(...)` — upsert all progression fields after deletion
+- `sendSignUpOtp` / `verifySignUpOtp` — email-change OTP (Sign Up path)
+- `sendLoginOtp` / `verifyLoginOtp` — sign-in OTP (Log In path)
+- `signOut()` — ends session; no new anonymous session created immediately
 
 ---
 
@@ -308,7 +329,10 @@ Full-screen scrim overlay. Nickname field → "Check Availability" → "Create p
 - `StatsViewModel` is physically at `ui/stats/StatsViewModel.kt` but its package is `com.storagerush.app.viewmodel` — imports reference the `viewmodel` package
 - `TrashBinState` is defined inside `TrashBinViewModel.kt`, not a separate file
 - `StatsUiState`, `NicknameEditState`, `FriendsUiState`, `GlobalUiState` are all defined inside `StatsViewModel.kt`
+- `UndoEntry` is defined in `DeckState.kt` alongside `DeckState`
+- `LastDeckSelection` is defined inside `UserPreferencesRepository.kt`
 - `AchievementDefinitions` object is defined in `Achievement.kt` alongside the `Achievement` data class
+- `FriendLeaderboardEntry` is defined in `FriendRecord.kt` and reused for both Friends and Global leaderboard queries
 - `MainScreen.kt` is a leftover Phase 1 placeholder, not used
 - `AppSettings.kt` model exists but not yet wired to DataStore
 - `PermissionDialogState.kt` exists but not actively used
@@ -320,3 +344,6 @@ Full-screen scrim overlay. Nickname field → "Check Availability" → "Create p
 - Logout flow: `cloudSyncRepository.signOut()` + `userPreferencesRepository.clearAccountLink()` + `playerRepository.resetToNewPlayer()` + `statsRepository.clearAllStats()` — all called together from MainActivity's logout confirmation dialog
 - `AccountLinkDialog` is also reachable mid-session from the hamburger menu (`showMenuAccountLinkDialog`) with `confirmBeforeRestore = true`
 - `clearAccountLink()` also resets `has_completed_cloud_setup` and `saved_nickname` — so after logout, cloud sync correctly no-ops
+- Supabase URL and anon key are injected via `BuildConfig` from `local.properties` — missing entries fail the build, not runtime
+- `getGlobalLeaderboard()` selects only 4 columns explicitly — do NOT change to `*`, JSON decoding is strict and `FriendLeaderboardEntry` only declares those 4 fields
+- `DeckViewModel.clearUndoStack()` is called by DeckScreen on leave to prevent stale undo state across sessions; `resetDeck()` resets index only; `clearDeck()` fully resets including `loadedDeckType`
