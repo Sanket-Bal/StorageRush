@@ -12,7 +12,7 @@ This is an Android app. Full project context is in `.claude/project.md`. Read it
 **Media access**: Android MediaStore API
 **Video thumbnails**: Coil `VideoFrameDecoder` registered in `StorageRushApplication`
 **Cloud backend**: Supabase (anonymous auth + Postgrest) via `supabase-kt BOM 3.5.0`
-**Min SDK**: 24 | **Target/Compile SDK**: 36 | **Kotlin**: 2.2.10 | **AGP**: 9.3.1
+**Min SDK**: 24 | **Target/Compile SDK**: 36 | **Version**: 1.1 (code 2) | **Kotlin**: 2.2.10 | **AGP**: 9.3.1
 
 ## Coding Rules
 

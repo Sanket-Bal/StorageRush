@@ -15,7 +15,7 @@ StorageRush is an Android app that lets users quickly clean up their phone stora
 - **Coroutines**: Kotlin Flows for async media loading
 - **Cloud backend**: Supabase (`supabase-kt BOM 3.5.0`) — anonymous auth, Postgrest, email OTP
 - **HTTP engine**: Ktor Android (`ktor-client-android:3.1.1`) — required by supabase-kt
-- **Min SDK**: 24 | **Target SDK**: 36 | **Compile SDK**: 36
+- **Min SDK**: 24 | **Target SDK**: 36 | **Compile SDK**: 36 | **Version**: 1.1 (code 2)
 - **Java 8+ APIs**: enabled via `coreLibraryDesugaring:2.0.4` (also required for supabase-kt on minSdk 24)
 - **Kotlin**: 2.2.10 | **AGP**: 9.3.1 | **Compose BOM**: 2026.06.01
 
