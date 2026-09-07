@@ -40,4 +40,19 @@ data class TrashItem(
         val ageMillis = System.currentTimeMillis() - createdAtMillis
         return (ageMillis / (24 * 60 * 60 * 1000L)).toInt()
     }
+
+    /**
+     * Returns the media type category for UI purposes (photo/video icon,
+     * deciding which preview overlay to open, etc). Mirrors
+     * MediaItem.getMediaTypeCategory() exactly — same package, so it
+     * reuses the same MediaTypeCategory enum rather than declaring a
+     * second one.
+     */
+    fun getMediaTypeCategory(): MediaTypeCategory {
+        return when {
+            mimeType.startsWith("image/") -> MediaTypeCategory.IMAGE
+            mimeType.startsWith("video/") -> MediaTypeCategory.VIDEO
+            else -> MediaTypeCategory.UNKNOWN
+        }
+    }
 }

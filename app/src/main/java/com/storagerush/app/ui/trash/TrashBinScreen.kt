@@ -5,32 +5,51 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.storagerush.app.data.model.MediaItem
+import com.storagerush.app.data.model.MediaTypeCategory
 import com.storagerush.app.data.model.TrashItem
+import com.storagerush.app.ui.components.PhotoViewer
+import com.storagerush.app.ui.deck.VideoOverlay
 import com.storagerush.app.viewmodel.TrashBinViewModel
 import androidx.activity.compose.BackHandler
 import android.content.Context
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 
@@ -42,6 +61,11 @@ fun TrashBinScreen(
 ) {
     val state = viewModel.trashBinState.collectAsState().value
     val context = LocalContext.current  // ✅ CAPTURE HERE AT COMPOSABLE LEVEL
+
+    // Which item (if any) is currently being previewed full-screen before
+    // the user decides whether to keep it trashed or restore it. Pure
+    // UI-local state — viewing doesn't touch TrashBinViewModel at all.
+    var previewItem by remember { mutableStateOf<TrashItem?>(null) }
 
     // Handle device back button
     BackHandler {
@@ -76,7 +100,7 @@ fun TrashBinScreen(
                         .weight(1f)
                         .fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp)
+                    contentPadding = PaddingValues(16.dp)
                 ) {
                     items(state.trashItems) { item ->
                         TrashItemRow(
@@ -87,6 +111,9 @@ fun TrashBinScreen(
                             },
                             onRestore = {
                                 viewModel.restoreItem(item)
+                            },
+                            onPreview = {
+                                previewItem = item
                             }
                         )
                     }
@@ -157,7 +184,53 @@ fun TrashBinScreen(
                 }
             }
         }
+
+        // Full-screen preview overlay — drawn last so it's always on top
+        // of the list, action bar, and delete dialog. VideoOverlay.kt
+        // itself is completely untouched: this just builds the MediaItem
+        // it expects from the TrashItem fields that already exist.
+        previewItem?.let { item ->
+            if (item.getMediaTypeCategory() == MediaTypeCategory.VIDEO) {
+                VideoOverlay(
+                    mediaItem = item.toPreviewMediaItem(),
+                    onDismiss = { previewItem = null }
+                )
+            } else {
+                PhotoViewer(
+                    imageUri = Uri.parse(item.uri),
+                    contentDescription = item.displayName,
+                    onDismiss = { previewItem = null }
+                )
+            }
+        }
     }
+}
+
+/**
+ * Builds a MediaItem out of a TrashItem's existing fields so VideoOverlay
+ * (built for the Deck, where MediaItem is the native model) can be reused
+ * as-is here without modification. VideoOverlay only ever reads
+ * mediaItem.id, .uri, and .duration — the fields below with placeholder
+ * values (dateModifiedSeconds, relativePath, bucketDisplayName) aren't
+ * tracked for trashed items and are never read by VideoOverlay, so they're
+ * safe to leave blank. duration = 0 is likewise safe: VideoOverlay already
+ * tolerates this for real videos too, before ExoPlayer reports the real
+ * duration via its own polling loop (~300ms) — this isn't a new code path,
+ * just relying on one that already exists.
+ */
+private fun TrashItem.toPreviewMediaItem(): MediaItem {
+    return MediaItem(
+        id = mediaId,
+        uri = Uri.parse(uri),
+        displayName = displayName,
+        mimeType = mimeType,
+        sizeBytes = sizeBytes,
+        dateAddedSeconds = dateAddedSeconds,
+        dateModifiedSeconds = dateAddedSeconds,
+        relativePath = "",
+        bucketDisplayName = "",
+        duration = 0L
+    )
 }
 
 @Composable
@@ -221,12 +294,19 @@ private fun TrashBinHeader(
     }
 }
 
+// Shared compact padding for the row's two action buttons (View, Restore)
+// so both stay small and consistent, leaving more horizontal room for the
+// thumbnail and filename — this is what keeps the taller, thumbnail-
+// carrying row from feeling cramped despite fitting more into it.
+private val TrashRowActionButtonPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+
 @Composable
 private fun TrashItemRow(
     item: TrashItem,
     isSelected: Boolean,
     onToggleSelect: () -> Unit,
     onRestore: () -> Unit,
+    onPreview: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -237,18 +317,61 @@ private fun TrashItemRow(
                 shape = RoundedCornerShape(12.dp)
             )
             .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        // Top alignment is the row-level default so the checkbox naturally
+        // lands top-left against the now-taller (thumbnail-carrying) row,
+        // per the requested layout. Every other child below explicitly
+        // overrides this back to CenterVertically so nothing else looks
+        // top-pinned — only the checkbox does.
+        verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Checkbox
+        // Checkbox — top-left, using the Row's default Top alignment
         Checkbox(
             checked = isSelected,
             onCheckedChange = { onToggleSelect() }
         )
 
+        // Thumbnail — tapping it opens the same full-screen preview as the
+        // View button. Sized generously enough to actually recognize the
+        // photo/video content, not just a tiny icon.
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .size(72.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .clickable { onPreview() }
+        ) {
+            AsyncImage(
+                model = Uri.parse(item.uri),
+                contentDescription = item.displayName,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+
+            // Small play-badge for videos, mirroring MediaCard's existing
+            // video-indicator language elsewhere in the app.
+            if (item.getMediaTypeCategory() == MediaTypeCategory.VIDEO) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .background(Color.Black.copy(alpha = 0.45f), shape = CircleShape)
+                        .padding(6.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = "Video",
+                        tint = Color.White,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+        }
+
         // Item details
         Column(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .align(Alignment.CenterVertically),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
@@ -266,16 +389,35 @@ private fun TrashItemRow(
             )
         }
 
-        // Restore button
-        Button(
-            onClick = onRestore,
-            modifier = Modifier,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
+        // Action buttons — View, then Restore to its right, as requested.
+        Row(
+            modifier = Modifier.align(Alignment.CenterVertically),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("↶", style = MaterialTheme.typography.labelLarge)
+            // View button — opens the full-screen photo/video preview.
+            Button(
+                onClick = onPreview,
+                contentPadding = TrashRowActionButtonPadding,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSecondary
+                )
+            ) {
+                Text("🔍", style = MaterialTheme.typography.labelLarge)
+            }
+
+            // Restore button — unchanged behavior, just recompacted to
+            // match the View button's sizing.
+            Button(
+                onClick = onRestore,
+                contentPadding = TrashRowActionButtonPadding,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            ) {
+                Text("↶", style = MaterialTheme.typography.labelLarge)
+            }
         }
     }
 }
